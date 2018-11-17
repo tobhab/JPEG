@@ -27,14 +27,6 @@ public class ZickZackInverse {
     if (block_size != 8) {
       throw new Exception("Inverse Zickzack is only supported on a blocksize of 8!");
     }
-
-
-    JPEG.writeDebugFiles = true;
-    int[][] test2 = new int[1][arr.length];
-    test2[0] = arr;
-    Matrix.toTxt(test2,"beforeinverseuzickzack");
-
-
     N = block_size;
 
     result = new int[width][height];
@@ -49,9 +41,6 @@ public class ZickZackInverse {
         offset += N * N;
       }
     }
-
-    Matrix.toTxt(result,"afterinverseuzickzack");
-    JPEG.writeDebugFiles = false;
   }
 
   public void zickzackInverse(int[] arr, int offsetInArr, int y_block, int x_block) throws Error {

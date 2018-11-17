@@ -27,10 +27,6 @@ public class ZickZack {
       throw new Exception("Zickzack is only supported on a blocksize of 8!");
     }
 
-
-    JPEG.writeDebugFiles = true;
-    Matrix.toTxt(arr,"beforezickzack");
-
     N = block_size;
     int width = arr[0].length;
     int height = arr.length;
@@ -47,11 +43,6 @@ public class ZickZack {
         offsetForBlock += N*N;
       }
     }
-
-    int[][] test2 = new int[1][result.length];
-    test2[0] = result;
-    Matrix.toTxt(test2,"afterzickzack");
-    JPEG.writeDebugFiles = false;
   }
 
   public void zickzack(int[][] arr, int y_block, int x_block, int offsetForBlock) throws Error {
