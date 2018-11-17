@@ -11,6 +11,8 @@ import java.io.IOException;
  */
 public class JPEG {
 
+  public static boolean writeDebugFiles = false;
+
   private ImageReader imageReader;
 
   private double[][] mMatrixYCbCr;

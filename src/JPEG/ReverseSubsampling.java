@@ -88,6 +88,9 @@ public class ReverseSubsampling {
   }
 
   public void writeImages(String filePath) throws IOException {
+    if(!JPEG.writeDebugFiles)
+      return;
+
     int height = yCbCrPicture.length;
     int width = yCbCrPicture[0].length;
     

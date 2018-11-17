@@ -40,7 +40,9 @@ public class Quantization {
   }
   
   public void saveQuantizationMatrix(String fileName) throws IOException {
-	  Matrix.toTxt(result, fileName);
+    if(!JPEG.writeDebugFiles)
+      return;
+    Matrix.toTxt(result, fileName);
   }
 
 }

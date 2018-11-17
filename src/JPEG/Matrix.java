@@ -176,6 +176,8 @@ public class Matrix {
   }
 
   public static void toTxt(double[][] arr, String filePath) throws IOException {
+    if(!JPEG.writeDebugFiles)
+      return;
     Formatter fmt = new Formatter(new File(filePath));
 
     for (int y = 0; y < arr.length; y++) {
@@ -189,6 +191,8 @@ public class Matrix {
   }
 
   public static void toTxt(int[][] arr, String filePath) throws IOException {
+    if(!JPEG.writeDebugFiles)
+      return;
     Formatter fmt = new Formatter(new File(filePath));
 
     for (int y = 0; y < arr.length; y++) {
