@@ -15,7 +15,7 @@ public class Main {
     System.out.println("Starting compression algorithm:");
 
     new JPEG()
-        .readImage("Lenna.png")
+        .readImage("Lenna_small.png")
         .setMultiplicationMatrixYCbCr(YPbPrMatrix)
         .setAdditionMatrixYCbCr(YCbCrMatrix)
         .convertRGBToYCbCr()
@@ -25,11 +25,8 @@ public class Main {
         .dct()
         //.setLuminanceQuality(Q255)
         //.setChromaticQuality(Q255)
-        //.quantization()
-        //
-        //// zickZack und entropyEncoding nicht fertig implementiert
-        //
-        //.zickZack()
+        .quantization()
+        .zickZack()
         //.entropyEncoding()
         //
         //// Manipulation der DCT Koeffizienten
@@ -39,10 +36,9 @@ public class Main {
         //.manipulateQuantization(8, 15, 1, 1, 255)
         //.manipulateQuantization(15, 15, 1, 1, 255)
         //.saveQuantizationMatrix("layerY_manipulated.txt")
-        //
-        //.dequantization()
-        //.idct()
-        .idctWithoutQuantization()
+        .inverseZickZack()
+        .dequantization()
+        .idct()
         .reverseSubsampling()
         .setSubtractionnMatrixRGB(YCbCrMatrix)
         .setMultiplicationMatrixRGB(RGBMatrix1)

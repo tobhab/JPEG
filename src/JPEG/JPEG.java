@@ -38,6 +38,10 @@ public class JPEG {
   ZickZack zickZackCb;
   ZickZack zickZackCr;
 
+  ZickZackInverse zickZackInverseY;
+  ZickZackInverse zickZackInverseCb;
+  ZickZackInverse zickZackInverseCr;
+
   EntropieEncoding entropyEncoding;
 
   Dequantization dequantY;
@@ -59,6 +63,9 @@ public class JPEG {
 
   long timeStart;
   long timeEnd;
+
+  int width;
+  int height;
 
   /**
    * Default constructor with default values
@@ -89,6 +96,9 @@ public class JPEG {
       throw new Exception("Error: Image already read!");
 
     imageReader = new ImageReader(imagePath);
+    width = imageReader.getRGBArray()[0].length;
+    height = imageReader.getRGBArray().length;
+    System.out.println("The image is " + width + "x" + height + "(height x width)");
     System.out.println(" done");
     return this;
   }
@@ -235,9 +245,12 @@ public class JPEG {
    */
   public JPEG dequantization() throws IOException {
     System.out.print("Performing dequantization ...");
-    dequantY = new Dequantization(quantY.getQuantizationResult(), quantMatrixLum, "layerY");
-    dequantCb = new Dequantization(quantCb.getQuantizationResult(), quantMatrixChro, "layerCb");
-    dequantCr = new Dequantization(quantCr.getQuantizationResult(), quantMatrixChro, "layerCr");
+    dequantY = new Dequantization(zickZackInverseY.getResult(), quantMatrixLum, "layerY");
+    dequantCb = new Dequantization(zickZackInverseCb.getResult(), quantMatrixChro, "layerCb");
+    dequantCr = new Dequantization(zickZackInverseCr.getResult(), quantMatrixChro, "layerCr");
+    //dequantY = new Dequantization(quantY.getQuantizationResult(), quantMatrixLum, "layerY");
+    //dequantCb = new Dequantization(quantCb.getQuantizationResult(), quantMatrixChro, "layerCb");
+    //dequantCr = new Dequantization(quantCr.getQuantizationResult(), quantMatrixChro, "layerCr");
     System.out.println(" done");
     return this;
   }
@@ -365,17 +378,34 @@ public class JPEG {
     return this;
   }
 
-  @Deprecated
   /**
    * DC Coding and Zig-Zag sequence. No inverse function implemented.
    * Separate the DC coefficient of coherent blocks and build differences
-   * 
+   *
    * @return this
    */
-  public JPEG zickZack() {
+  public JPEG zickZack() throws Exception {
+    System.out.print("Performing ZickZack-Encoding...");
     zickZackY = new ZickZack(quantY.getQuantizationResult(), blockSize);
-    zickZackCb = new ZickZack(quantCb.getQuantizationResult(), blockSize);
-    zickZackCr = new ZickZack(quantCr.getQuantizationResult(), blockSize);
+    zickZackCb = new ZickZack(quantY.getQuantizationResult(), blockSize);
+    zickZackCr = new ZickZack(quantY.getQuantizationResult(), blockSize);
+    System.out.println(" done");
+    return this;
+  }
+
+  /**
+   * DC Coding and Zig-Zag sequence. No inverse function implemented.
+   * Separate the DC coefficient of coherent blocks and build differences
+   *
+   * @return this
+   */
+  public JPEG inverseZickZack() throws Exception {
+    System.out.print("Performing the inverse ZickZack-Encoding...");
+    zickZackInverseY = new ZickZackInverse(zickZackY.getResult(), blockSize, width, height);
+    zickZackInverseCb = new ZickZackInverse(zickZackCb.getResult(), blockSize, width, height);
+    zickZackInverseCr = new ZickZackInverse(zickZackCr.getResult(), blockSize, width, height);
+    System.out.println(" done");
+
     return this;
   }
 

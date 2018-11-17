@@ -29,40 +29,40 @@ public class ZickZackInverse {
     }
 
 
+    JPEG.writeDebugFiles = true;
+    int[][] test2 = new int[1][arr.length];
+    test2[0] = arr;
+    Matrix.toTxt(test2,"beforeinverseuzickzack");
+
+
     N = block_size;
 
     result = new int[width][height];
 
     int offset = 0;
-    int DC = 0;
     // for each block of image
-    for (int y_block = 0; y_block < height; y_block += N) {
-      DC = 0;
-      for (int x_block = 0; x_block < width; x_block += N) {
-        DC = zickzackInverse(arr, offset, y_block, x_block, DC);
+    for (int y_block = 0; y_block < height; y_block += N)
+    {
+      for (int x_block = 0; x_block < width; x_block += N)
+      {
+        zickzackInverse(arr, offset, y_block, x_block);
         offset += N * N;
       }
     }
+
+    Matrix.toTxt(result,"afterinverseuzickzack");
+    JPEG.writeDebugFiles = false;
   }
 
-  public int zickzackInverse(int[] arr, int offsetInArr, int y_block, int x_block, int DC) throws Error {
-    int DC_temp;
-
+  public void zickzackInverse(int[] arr, int offsetInArr, int y_block, int x_block) throws Error {
     int rows = y_block;
     int columns = x_block;
-
-    boolean diagonal = true; // true = up, false = down
-
-    DC_temp = arr[columns];
-    arr[columns] -= DC;
 
     for (int i = 0; i < (N * N); i++) {
       int x_offset = ReverseZickZackMapping8[i][0];
       int y_offset = ReverseZickZackMapping8[i][1];
       result[x_block + x_offset][y_block + y_offset] = arr[offsetInArr + i];
     }
-
-    return DC_temp;
   }
 
   public int[][] getResult() {

@@ -3,7 +3,6 @@ package JPEG;
 public class ZickZack {
 
   private int N;
-  private int offsetForBlock = 0;
   private int[] result;
 
   //The value in this field indicates at which index-1 in the 1d final array a cell ends up
@@ -28,29 +27,36 @@ public class ZickZack {
       throw new Exception("Zickzack is only supported on a blocksize of 8!");
     }
 
+
+    JPEG.writeDebugFiles = true;
+    Matrix.toTxt(arr,"beforezickzack");
+
     N = block_size;
     int width = arr[0].length;
     int height = arr.length;
 
     result = new int[width * height];
 
-    int DC = 0;
+    int offsetForBlock = 0;
     // for each block of image
-    for (int y_block = 0; y_block < height; y_block += N) {
-      DC = 0;
+    for (int y_block = 0; y_block < height; y_block += N)
+    {
       for (int x_block = 0; x_block < width; x_block += N)
-        DC = zickzack(arr, y_block, x_block, DC);
+      {
+        zickzack(arr, y_block, x_block, offsetForBlock);
+        offsetForBlock += N*N;
+      }
     }
+
+    int[][] test2 = new int[1][result.length];
+    test2[0] = result;
+    Matrix.toTxt(test2,"afterzickzack");
+    JPEG.writeDebugFiles = false;
   }
 
-  public int zickzack(int[][] arr, int y_block, int x_block, int DC) throws Error {
-    int DC_temp;
-
+  public void zickzack(int[][] arr, int y_block, int x_block, int offsetForBlock) throws Error {
     int rows = y_block;
     int columns = x_block;
-
-    DC_temp = arr[rows][columns];
-    arr[rows][columns] -= DC;
 
     for (int x = 0; x < N; x++) {
       for (int y = 0; y < N; y++) {
@@ -58,8 +64,6 @@ public class ZickZack {
         result[offsetForBlock + indexInBlock] = arr[x_block + x][y_block + y];
       }
     }
-    offsetForBlock += N * N;
-    return DC_temp;
   }
 
   public int[] getResult() {
