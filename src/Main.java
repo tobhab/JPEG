@@ -26,6 +26,7 @@ public class Main {
         //.setLuminanceQuality(Q255)
         //.setChromaticQuality(Q255)
         .quantization()
+        .differentalEncoding()
         .zickZack()
         //.entropyEncoding()
         //
@@ -37,6 +38,7 @@ public class Main {
         //.manipulateQuantization(15, 15, 1, 1, 255)
         //.saveQuantizationMatrix("layerY_manipulated.txt")
         .inverseZickZack()
+        .inverseDifferentalEncoding()
         .dequantization()
         .idct()
         .reverseSubsampling()

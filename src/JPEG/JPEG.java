@@ -38,6 +38,14 @@ public class JPEG {
   ZickZack zickZackCb;
   ZickZack zickZackCr;
 
+  DifferentialEncoding differental_Y;
+  DifferentialEncoding differental_Cb;
+  DifferentialEncoding differental_Cr;
+
+  InverseDifferentialEncoding inverseDifferental_Y;
+  InverseDifferentialEncoding inverseDifferental_Cb;
+  InverseDifferentialEncoding inverseDifferental_Cr;
+
   ZickZackInverse zickZackInverseY;
   ZickZackInverse zickZackInverseCb;
   ZickZackInverse zickZackInverseCr;
@@ -386,6 +394,23 @@ public class JPEG {
   }
 
   /**
+   * Perform the differential encoding
+   *
+   * @return this
+   */
+  public JPEG differentalEncoding() throws Exception {
+    System.out.print("Performing DifferentialEncoding...");
+    differental_Y = new DifferentialEncoding(lastResult2i_Y, blockSize);
+    differental_Cb = new DifferentialEncoding(lastResult2i_Cb, blockSize);
+    differental_Cr = new DifferentialEncoding(lastResult2i_Cr, blockSize);
+    System.out.println(" done");
+    lastResult2i_Y = differental_Y.getResult();
+    lastResult2i_Cb = differental_Cb.getResult();
+    lastResult2i_Cr = differental_Cr.getResult();
+    return this;
+  }
+
+  /**
    * Perform the zickzack-encoding to convert the 2d imagine into a 1d stream of data
    *
    * @return this
@@ -416,6 +441,23 @@ public class JPEG {
     lastResult2i_Y = zickZackInverseY.getResult();
     lastResult2i_Cb = zickZackInverseCb.getResult();
     lastResult2i_Cr = zickZackInverseCr.getResult();
+    return this;
+  }
+
+  /**
+   * Perform the inverse differential encoding
+   *
+   * @return this
+   */
+  public JPEG inverseDifferentalEncoding() throws Exception {
+    System.out.print("Performing InverseDifferentialEncoding...");
+    inverseDifferental_Y = new InverseDifferentialEncoding(lastResult2i_Y, blockSize);
+    inverseDifferental_Cb = new InverseDifferentialEncoding(lastResult2i_Cb, blockSize);
+    inverseDifferental_Cr = new InverseDifferentialEncoding(lastResult2i_Cr, blockSize);
+    System.out.println(" done");
+    lastResult2i_Y = inverseDifferental_Y.getResult();
+    lastResult2i_Cb = inverseDifferental_Cb.getResult();
+    lastResult2i_Cr = inverseDifferental_Cr.getResult();
     return this;
   }
 
