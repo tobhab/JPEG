@@ -18,7 +18,7 @@ public class ZickZackInverse {
           {6, 5}, {7, 4}, {7, 5}, {6, 6}, {5, 7}, {6, 7}, {7, 6}, {7, 7}};
 
   /**
-   * DC coding for each depending block (in a row) and build Zig-Zag sequence (block to array).
+   * Inverse the zickzack-encoding (array to block).
    *
    * @param arr
    * @param block_size

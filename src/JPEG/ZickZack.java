@@ -17,7 +17,7 @@ public class ZickZack {
           {36, 37, 49, 50, 58, 59, 63, 64}};
 
   /**
-   * DC coding for each depending block (in a row) and build Zig-Zag sequence (block to array).
+   * Build Zig-Zag sequence (block to array).
    *
    * @param arr
    * @param block_size
