@@ -67,6 +67,22 @@ public class JPEG {
   int width;
   int height;
 
+  double[][] lastResult2d_Y;
+  double[][] lastResult2d_Cb;
+  double[][] lastResult2d_Cr;
+
+  double[][][] lastResult3d;
+
+  int[] lastResult1i_Y;
+  int[] lastResult1i_Cb;
+  int[] lastResult1i_Cr;
+
+  int[][] lastResult2i_Y;
+  int[][] lastResult2i_Cb;
+  int[][] lastResult2i_Cr;
+
+  int[][][] lastResult3i;
+
   /**
    * Default constructor with default values
    */
@@ -100,6 +116,8 @@ public class JPEG {
     height = imageReader.getRGBArray().length;
     System.out.println("The image is " + width + "x" + height + "(height x width)");
     System.out.println(" done");
+
+    lastResult3i = imageReader.getRGBArray();
     return this;
   }
 
@@ -134,8 +152,9 @@ public class JPEG {
    */
   public JPEG convertRGBToYCbCr() throws IOException {
     System.out.print("Converting RGB to YCbCr ...");
-    yCbCrConverter = new YCbCrConverter(imageReader.getRGBArray(), mMatrixYCbCr, aMatrixYCbCr);
+    yCbCrConverter = new YCbCrConverter(lastResult3i, mMatrixYCbCr, aMatrixYCbCr);
     System.out.println(" done");
+    lastResult3d = yCbCrConverter.getYCbCrArray();
     return this;
   }
 
@@ -159,8 +178,11 @@ public class JPEG {
    */
   public JPEG subsampling() throws IOException {
     System.out.print("Performing subsampling ...");
-    subsampling = new Subsampling(yCbCrConverter.getYCbCrArray(), subsamplingType);
+    subsampling = new Subsampling(lastResult3d, subsamplingType);
     System.out.println(" done");
+    lastResult2d_Y = subsampling.getLayerY();
+    lastResult2d_Cb = subsampling.getLayerCb();
+    lastResult2d_Cr = subsampling.getLayerCr();
     return this;
   }
 
@@ -185,18 +207,22 @@ public class JPEG {
     System.out.println("Performing Discrete Cosine Transform (DCT):");
     
     System.out.print("Y-Layer ...");
-    dctY = new DCT(subsampling.getLayerY(), blockSize, "layerY");
+    dctY = new DCT(lastResult2d_Y, blockSize, "layerY");
     System.out.println(" done");
     
     System.out.print("Cb-Layer ...");
-    dctCb = new DCT(subsampling.getLayerCb(), blockSize, "layerCb");
+    dctCb = new DCT(lastResult2d_Cb, blockSize, "layerCb");
     System.out.println(" done");
     
     System.out.print("Cr-Layer ...");
-    dctCr = new DCT(subsampling.getLayerCr(), blockSize, "layerCr");
+    dctCr = new DCT(lastResult2d_Cr, blockSize, "layerCr");
     System.out.println(" done");
     
     System.out.println("DCT applied.");
+
+    lastResult2d_Y = dctY.getDCTResult();
+    lastResult2d_Cb = dctCb.getDCTResult();
+    lastResult2d_Cr = dctCr.getDCTResult();
     return this;
   }
 
@@ -230,10 +256,13 @@ public class JPEG {
    */
   public JPEG quantization() throws IOException {
     System.out.print("Performing quantization ...");
-    quantY = new Quantization(dctY.getDCTResult(), quantMatrixLum, "layerY");
-    quantCb = new Quantization(dctCb.getDCTResult(), quantMatrixChro, "layerCb");
-    quantCr = new Quantization(dctCr.getDCTResult(), quantMatrixChro, "layerCr");
+    quantY = new Quantization(lastResult2d_Y, quantMatrixLum, "layerY");
+    quantCb = new Quantization(lastResult2d_Cb, quantMatrixChro, "layerCb");
+    quantCr = new Quantization(lastResult2d_Cr, quantMatrixChro, "layerCr");
     System.out.println(" done");
+    lastResult2i_Y = quantY.getQuantizationResult();
+    lastResult2i_Cb = quantCb.getQuantizationResult();
+    lastResult2i_Cr = quantCr.getQuantizationResult();
     return this;
   }
 
@@ -245,13 +274,13 @@ public class JPEG {
    */
   public JPEG dequantization() throws IOException {
     System.out.print("Performing dequantization ...");
-    dequantY = new Dequantization(zickZackInverseY.getResult(), quantMatrixLum, "layerY");
-    dequantCb = new Dequantization(zickZackInverseCb.getResult(), quantMatrixChro, "layerCb");
-    dequantCr = new Dequantization(zickZackInverseCr.getResult(), quantMatrixChro, "layerCr");
-    //dequantY = new Dequantization(quantY.getQuantizationResult(), quantMatrixLum, "layerY");
-    //dequantCb = new Dequantization(quantCb.getQuantizationResult(), quantMatrixChro, "layerCb");
-    //dequantCr = new Dequantization(quantCr.getQuantizationResult(), quantMatrixChro, "layerCr");
+    dequantY = new Dequantization(lastResult2i_Y, quantMatrixLum, "layerY");
+    dequantCb = new Dequantization(lastResult2i_Cb, quantMatrixChro, "layerCb");
+    dequantCr = new Dequantization(lastResult2i_Cr, quantMatrixChro, "layerCr");
     System.out.println(" done");
+    lastResult2d_Y = dequantY.getDequantizationResult();
+    lastResult2d_Cb = dequantCb.getDequantizationResult();
+    lastResult2d_Cr = dequantCr.getDequantizationResult();
     return this;
   }
 
@@ -265,46 +294,22 @@ public class JPEG {
     System.out.println("Inverting Discrete Cosine Transform:");
     
     System.out.print("Y-Layer ...");
-    idctY = new IDCT(dequantY.getDequantizationResult(), blockSize, "layerY");
+    idctY = new IDCT(lastResult2d_Y, blockSize, "layerY");
     System.out.println(" done");
     
     System.out.print("Cb-Layer ...");
 
-    idctCb = new IDCT(dequantCb.getDequantizationResult(), blockSize, "layerCb");
+    idctCb = new IDCT(lastResult2d_Cb, blockSize, "layerCb");
     System.out.println(" done");
     
     System.out.print("Cr-Layer ...");
-    idctCr = new IDCT(dequantCr.getDequantizationResult(), blockSize, "layerCr");
+    idctCr = new IDCT(lastResult2d_Cr, blockSize, "layerCr");
     System.out.println(" done");
     
     System.out.println("IDCT applied.");
-    return this;
-  }
-
-  /**
-   * Reverse the forward Discrete Cosine Transform directly from DCT results
-   * 
-   * @return this
-   * @throws IOException
-   */
-  public JPEG idctWithoutQuantization() throws IOException {
-    System.out.println("Inverting Discrete Cosine Transform:");
-    
-    System.out.print("Y-Layer ...");
-    idctY = new IDCT(dctY.getDCTResult(), blockSize, "layerY");
-    System.out.println(" done");
-    
-    System.out.print("Cb-Layer ...");
-
-    idctCb = new IDCT(dctCb.getDCTResult(), blockSize, "layerCb");
-    System.out.println(" done");
-    
-    System.out.print("Cr-Layer ...");
-    // funny colors by using Cb for Cr ;)... idctCr = new IDCT(dctCb.getDCTResult(), blockSize, "layerCr");
-    idctCr = new IDCT(dctCr.getDCTResult(), blockSize, "layerCr");
-    System.out.println(" done");
-    
-    System.out.println("IDCT applied.");
+    lastResult2d_Y = idctY.getIDCTResult();
+    lastResult2d_Cb = idctCb.getIDCTResult();
+    lastResult2d_Cr = idctCr.getIDCTResult();
     return this;
   }
 
@@ -318,11 +323,12 @@ public class JPEG {
   public JPEG reverseSubsampling() throws IOException {
     System.out.print("Inverting subsampling ...");
     revSubsampling = new ReverseSubsampling(
-        idctY.getIDCTResult(),
-        idctCb.getIDCTResult(),
-        idctCr.getIDCTResult(),
+            lastResult2d_Y,
+            lastResult2d_Cb,
+            lastResult2d_Cr,
         subsamplingType);
     System.out.println(" done");
+    lastResult3d = revSubsampling.getYCbCr();
     return this;
   }
 
@@ -356,8 +362,9 @@ public class JPEG {
    */
   public JPEG convertYCbCrToRGB() {
     System.out.print("Converting YCbCr to RGB ...");
-    rgbConvert = new RGBConverter(revSubsampling.getYCbCr(), mMatrixRGB, aMatrixRGB);
+    rgbConvert = new RGBConverter(lastResult3d, mMatrixRGB, aMatrixRGB);
     System.out.println(" done");
+    lastResult3i = rgbConvert.getRGBArray();
     return this;
   }
 
@@ -370,7 +377,7 @@ public class JPEG {
    */
   public JPEG writeImage(String filePath) throws IOException {
     System.out.printf("Writing all outputs to \"%s%s\" ...", System.getProperty("user.dir"), "\\");
-    imageWriter = new ImageWriter(rgbConvert.getRGBArray(), filePath);
+    imageWriter = new ImageWriter(lastResult3i, filePath);
 
     System.out.println(" done");
     timeEnd = System.currentTimeMillis();
@@ -379,33 +386,36 @@ public class JPEG {
   }
 
   /**
-   * DC Coding and Zig-Zag sequence. No inverse function implemented.
-   * Separate the DC coefficient of coherent blocks and build differences
+   * Perform the zickzack-encoding to convert the 2d imagine into a 1d stream of data
    *
    * @return this
    */
   public JPEG zickZack() throws Exception {
     System.out.print("Performing ZickZack-Encoding...");
-    zickZackY = new ZickZack(quantY.getQuantizationResult(), blockSize);
-    zickZackCb = new ZickZack(quantY.getQuantizationResult(), blockSize);
-    zickZackCr = new ZickZack(quantY.getQuantizationResult(), blockSize);
+    zickZackY = new ZickZack(lastResult2i_Y, blockSize);
+    zickZackCb = new ZickZack(lastResult2i_Cb, blockSize);
+    zickZackCr = new ZickZack(lastResult2i_Cr, blockSize);
     System.out.println(" done");
+    lastResult1i_Y = zickZackY.getResult();
+    lastResult1i_Cb = zickZackCb.getResult();
+    lastResult1i_Cr = zickZackCr.getResult();
     return this;
   }
 
   /**
-   * DC Coding and Zig-Zag sequence. No inverse function implemented.
-   * Separate the DC coefficient of coherent blocks and build differences
+   * Inverse the zickzack-encoding to get back the 2d image data from the 1d data stream
    *
    * @return this
    */
   public JPEG inverseZickZack() throws Exception {
     System.out.print("Performing the inverse ZickZack-Encoding...");
-    zickZackInverseY = new ZickZackInverse(zickZackY.getResult(), blockSize, width, height);
-    zickZackInverseCb = new ZickZackInverse(zickZackCb.getResult(), blockSize, width, height);
-    zickZackInverseCr = new ZickZackInverse(zickZackCr.getResult(), blockSize, width, height);
+    zickZackInverseY = new ZickZackInverse(lastResult1i_Y, blockSize, width, height);
+    zickZackInverseCb = new ZickZackInverse(lastResult1i_Cb, blockSize, width, height);
+    zickZackInverseCr = new ZickZackInverse(lastResult1i_Cr, blockSize, width, height);
     System.out.println(" done");
-
+    lastResult2i_Y = zickZackInverseY.getResult();
+    lastResult2i_Cb = zickZackInverseCb.getResult();
+    lastResult2i_Cr = zickZackInverseCr.getResult();
     return this;
   }
 
@@ -420,9 +430,9 @@ public class JPEG {
 
     // join all zick-zack arrays of all layers
     int[][] zickZackArrays = {
-        zickZackY.getResult(),
-        zickZackCr.getResult(),
-        zickZackCb.getResult(),
+            lastResult1i_Y,
+            lastResult1i_Cb,
+            lastResult1i_Cr,
     };
 
     int length = 0;
@@ -438,7 +448,6 @@ public class JPEG {
     }
 
     entropyEncoding = new EntropieEncoding(result);
-
     return this;
   }
 

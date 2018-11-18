@@ -15,7 +15,7 @@ public class Main {
     System.out.println("Starting compression algorithm:");
 
     new JPEG()
-        .readImage("Lenna_small.png")
+        .readImage("Lenna.png")
         .setMultiplicationMatrixYCbCr(YPbPrMatrix)
         .setAdditionMatrixYCbCr(YCbCrMatrix)
         .convertRGBToYCbCr()
