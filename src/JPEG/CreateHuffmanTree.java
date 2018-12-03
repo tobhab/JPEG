@@ -131,6 +131,76 @@ class Node {
     }
   }
 
+  /**
+   * Add the given node to the left most postition below this node.
+   * It tries to traverse the tree on the same level to find a location to add the node
+   * @param toAdd
+   * @return The parent to which the node was actually added
+   */
+  public Node addLeftMost(Node toAdd)
+  {
+    if(left == null)
+    {
+      left = toAdd;
+      return  this;
+    }
+    if(right == null)
+    {
+      right = toAdd;
+      return traverseRight();
+    }
+    Node toReturn = traverseRight();
+    toReturn.addLeftMost(toAdd);
+    return toReturn;
+  }
+
+  /**
+   * Searches and returns the node which is to the right on the same level in the tree
+   * @return The node which is to the right of this node
+   */
+  private Node traverseRight() {
+    int stepsUp = 0;
+    Node current = this;
+    while(current.right != null)
+    {
+      if(current.parent == null)
+      {
+        //using runtime exceptions since they don't need to be added to the method signature
+        throw new RuntimeException();
+      }
+      current = current.parent;
+      stepsUp++;
+    }
+
+    current.right = new Node(current);
+    current = current.right;
+    while (stepsUp > 0)
+    {
+      current.left = new Node(current);
+      current = current.left;
+      stepsUp--;
+    }
+    return current;
+  }
+
+  /**
+   *
+   * @return The node which was able to be placed directly below or to the right below this node
+   */
+  public  Node traverseDown() {
+    if(left == null)
+    {
+      left = new Node(this);
+      return left;
+    }
+    if(right == null)
+    {
+      right = new Node(this);
+      return right;
+    }
+     return traverseRight().traverseDown();
+  }
+
   public String toString() {
     String s = "";
     if (isNode)
