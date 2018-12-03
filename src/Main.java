@@ -28,7 +28,7 @@ public class Main {
         .quantization()
         .differentalEncoding()
         .zickZack()
-        .createHuffmanTables()
+        .setDefaultHuffmanTable()
         //
         //// Manipulation der DCT Koeffizienten
         //

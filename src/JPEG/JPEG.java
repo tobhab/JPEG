@@ -1,5 +1,7 @@
 package JPEG;
 
+import javax.imageio.plugins.jpeg.JPEGHuffmanTable;
+
 import static JPEG.Constants.*;
 import static JPEG.SubsamplingType.*;
 import java.io.IOException;
@@ -461,7 +463,20 @@ public class JPEG {
     return this;
   }
 
-  @Deprecated
+  public JPEG setHuffmanTable(short[] lengths, short[] values) {
+    System.out.println("Setting the huffman table to the given value");
+    CreateHuffmanTree table = new CreateHuffmanTree(
+            lengths,
+            values);
+    return this;
+  }
+
+  public JPEG setDefaultHuffmanTable() {
+    System.out.println("Setting the default huffman table");
+    setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues());
+    return this;
+  }
+
   /**
    * Build a Huffman table for entropy coding. Not completed.
    * No inverse function implemented.
