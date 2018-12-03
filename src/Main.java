@@ -28,7 +28,7 @@ public class Main {
         .quantization()
         .differentalEncoding()
         .zickZack()
-        //.entropyEncoding()
+        .createHuffmanTables()
         //
         //// Manipulation der DCT Koeffizienten
         //

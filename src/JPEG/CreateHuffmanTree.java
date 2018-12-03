@@ -1,9 +1,10 @@
 package JPEG;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
-public class EntropieEncoding {
+public class CreateHuffmanTree {
 
   ArrayList<Node> leafs;
   int all;
@@ -14,7 +15,7 @@ public class EntropieEncoding {
    * 
    * @param arr
    */
-  public EntropieEncoding(int[] arr) {
+  public CreateHuffmanTree(int[] arr) {
 
     all = arr.length;
     HashMap<Integer, Node> leafMap = new HashMap<Integer, Node>();
@@ -27,7 +28,7 @@ public class EntropieEncoding {
         leafMap.put(key, new Node(key));
 
     leafs = new ArrayList<Node>(leafMap.values());
-    leafs.sort((a, b) -> a.probability - b.probability);
+    leafs.sort(Comparator.comparingInt(X -> X.probability));
 
     this.root = createTree();
     // this.root = createTree2();

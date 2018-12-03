@@ -50,7 +50,7 @@ public class JPEG {
   ZickZackInverse zickZackInverseCb;
   ZickZackInverse zickZackInverseCr;
 
-  EntropieEncoding entropyEncoding;
+  CreateHuffmanTree entropyEncoding;
 
   Dequantization dequantY;
   Dequantization dequantCb;
@@ -468,7 +468,7 @@ public class JPEG {
    * 
    * @return this
    */
-  public JPEG entropyEncoding() {
+  public JPEG createHuffmanTables() {
 
     // join all zick-zack arrays of all layers
     int[][] zickZackArrays = {
@@ -489,7 +489,7 @@ public class JPEG {
       offset += arr.length;
     }
 
-    entropyEncoding = new EntropieEncoding(result);
+    entropyEncoding = new CreateHuffmanTree(result);
     return this;
   }
 
