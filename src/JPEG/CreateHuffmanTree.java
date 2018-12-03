@@ -1,8 +1,7 @@
 package JPEG;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class CreateHuffmanTree {
 
@@ -12,7 +11,7 @@ public class CreateHuffmanTree {
 
   /**
    * Build a Huffman table for a given int array
-   * 
+   *
    * @param arr
    */
   public CreateHuffmanTree(int[] arr) {
@@ -31,9 +30,39 @@ public class CreateHuffmanTree {
     leafs.sort(Comparator.comparingInt(X -> X.probability));
 
     this.root = createTree();
-    // this.root = createTree2();
-    System.out.println("Huffman code:");
-    printTree(root, "");
+  }
+
+  /**
+   * Build a Huffman table for a given lengths and values arrays like in section K in ITU-T81
+   *
+   * @param lengths The number of values for a given bit width
+   * @param values The values for the bit width
+   */
+  public CreateHuffmanTree(short[] lengths, short[] values) {
+    //The tree is constructed from the top down in this function
+    root = new Node(null);
+    Node current = root;
+
+    leafs = new ArrayList<Node>();
+
+    int levelNumber = 0;
+    int nodesLeftInLevel;
+    int indexInValues = 0;
+
+    do {
+      nodesLeftInLevel = lengths[levelNumber];
+      levelNumber++;
+
+      while(nodesLeftInLevel > 0)
+      {
+        Node test = new Node(values[indexInValues++]);
+        nodesLeftInLevel--;
+        current = current.addLeftMost(test);
+      }
+      current = current.traverseDown();
+
+    }
+    while (levelNumber < lengths.length);
   }
 
   /**
@@ -113,7 +142,15 @@ class Node {
     left = n1;
     right = n2;
     isNode = true;
-    probability = n1.probability + n2.probability;
+    if (n1 != null && n2 != null) {
+      probability = n1.probability + n2.probability;
+    }
+  }
+
+  public Node(Node parent)
+  {
+    this(null,null);
+    this.parent = parent;
   }
 
   public String getCode() {
