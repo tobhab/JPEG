@@ -45,7 +45,11 @@ public class EntropieEncoding {
 
     while (leafs.size() > 1) {
       while (leafs.size() > 1) {
-        Node newNode = new Node(leafs.remove(0), leafs.remove(0));
+        Node leftChild = leafs.remove(0);
+        Node rightChild = leafs.remove(0);
+        Node newNode = new Node(leftChild, rightChild);
+        leftChild.parent = newNode;
+        rightChild.parent = newNode;
         root = newNode;
         tmp.add(newNode);
       }
@@ -89,14 +93,14 @@ public class EntropieEncoding {
 }
 
 /**
- * Node class represent an element with its value and the probability 
+ * Node class represent an element with its value and the probability
  */
 class Node {
   boolean isNode;
   int value;
   int probability;
 
-  Node left, right;
+  Node left, right, parent;
 
   public Node(int value) {
     this.value = value;
@@ -109,6 +113,21 @@ class Node {
     right = n2;
     isNode = true;
     probability = n1.probability + n2.probability;
+  }
+
+  public String getCode() {
+    if (parent == null) {
+      return "";
+    }
+    return parent.getCode(this);
+  }
+
+  private String getCode(Node caller) {
+    if (caller == left) {
+      return getCode() + "0";
+    } else {
+      return getCode() + "1";
+    }
   }
 
   public String toString() {
