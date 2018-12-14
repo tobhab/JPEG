@@ -4,6 +4,10 @@
 
 import JPEG.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import static JPEG.Constants.*;
 import static JPEG.SubsamplingType.*;
 
@@ -13,6 +17,8 @@ public class Main {
 
   public static void main(String[] args) throws Exception {
     System.out.println("Starting compression algorithm:");
+
+    testBitStreamClasses();
 
     new JPEG()
         .readImage("Lenna.png")
@@ -47,6 +53,54 @@ public class Main {
         .convertYCbCrToRGB()
         .writeImage("myLenna.bmp");
     System.out.println("Exiting execution.");
+  }
+
+  /**
+   * Does a simple test to verify that the order in which the bits are written and read are consistent
+   * @throws IOException
+   */
+  private static void testBitStreamClasses() throws IOException {
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    BitStreamWriter testOut = new BitStreamWriter(out);
+    testOut.write(42);
+    for (int i = 0; i < 12; i++) {
+
+      testOut.write(false);
+      testOut.write(true);
+    }
+    testOut.write(50);
+    for (int i = 0; i < 12; i++) {
+
+      testOut.write(true);
+      testOut.write(true);
+    }
+    testOut.write(50);
+    testOut.close();
+    byte[] array = out.toByteArray();
+
+    ByteArrayInputStream in = new ByteArrayInputStream(array);
+    BitStreamReader testIn = new BitStreamReader(in);
+    boolean passed = testIn.readInt() == 42;
+    for (int i = 0; i < 12; i++) {
+
+      passed &= testIn.readBit() == false;
+      passed &= testIn.readBit() == true;
+    }
+    passed &= testIn.readInt() == 50;
+    for (int i = 0; i < 12; i++) {
+      passed &= testIn.readBit() == true;
+      passed &= testIn.readBit() == true;
+    }
+    passed &= testIn.readInt() == 50;
+    if(!passed)
+    {
+      System.out.println("Writing and reading from the bit stream did not yield the same results");
+    }
+    else
+    {
+      System.out.println("Writing and reading from the bitstream worked as planned");
+    }
   }
 
 }
