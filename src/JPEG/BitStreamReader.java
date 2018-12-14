@@ -35,7 +35,7 @@ public class BitStreamReader implements Closeable {
 
   private void ensureBuffer(int count) throws IOException {
     while (storedBits < count) {
-      long nextBits = in.read(); //Discard all but the 8 rightmost bits
+      long nextBits = in.read(); //Discard all but the 8 rightmost bits, because only the last byte holds actual data
       if (nextBits == -1) {
         throw new IOException("Not enough bits left in stream");
       }
