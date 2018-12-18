@@ -79,6 +79,11 @@ public class RunlengthEncode {
         result[currentResultIndex++] = arr[currentBlockOffset + indexInCurrentBlock ];
       }
     }
+    //Must make sure that it ends with an end of block marker, if there is a checkerboard pattern then the very last coefficient might not be zero
+    if(result[currentResultIndex - 1] != endOfBlockMarker)
+    {
+      result[currentResultIndex++] = endOfBlockMarker;
+    }
 
     return currentResultIndex;
   }
