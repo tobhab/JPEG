@@ -44,6 +44,10 @@ public class JPEG {
   DifferentialEncoding differental_Cb;
   DifferentialEncoding differental_Cr;
 
+  RunlengthEncode runlengthEncode_Y;
+  RunlengthEncode runlengthEncode_Cb;
+  RunlengthEncode runlengthEncode_Cr;
+
   InverseDifferentialEncoding inverseDifferental_Y;
   InverseDifferentialEncoding inverseDifferental_Cb;
   InverseDifferentialEncoding inverseDifferental_Cr;
@@ -429,6 +433,32 @@ public class JPEG {
     return this;
   }
 
+  public JPEG runlengthEncode() {
+    System.out.println("Performing Runlength-Encoding...");
+    runlengthEncode_Y = new RunlengthEncode(lastResult1i_Y, blockSize);
+    runlengthEncode_Cb = new RunlengthEncode(lastResult1i_Cb, blockSize);
+    runlengthEncode_Cr = new RunlengthEncode(lastResult1i_Cr, blockSize);
+    System.out.println(" done");
+    lastResult1i_Y = runlengthEncode_Y.getResult();
+    lastResult1i_Cb = runlengthEncode_Cb.getResult();
+    lastResult1i_Cr = runlengthEncode_Cr.getResult();
+    return this;
+  }
+
+  public JPEG setHuffmanTable(short[] lengths, short[] values) {
+    System.out.println("Setting the huffman table to the given value");
+    CreateHuffmanTree table = new CreateHuffmanTree(
+            lengths,
+            values);
+    return this;
+  }
+
+  public JPEG setDefaultHuffmanTable() {
+    System.out.println("Setting the default huffman table");
+    setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues());
+    return this;
+  }
+
   /**
    * Inverse the zickzack-encoding to get back the 2d image data from the 1d data stream
    *
@@ -460,20 +490,6 @@ public class JPEG {
     lastResult2i_Y = inverseDifferental_Y.getResult();
     lastResult2i_Cb = inverseDifferental_Cb.getResult();
     lastResult2i_Cr = inverseDifferental_Cr.getResult();
-    return this;
-  }
-
-  public JPEG setHuffmanTable(short[] lengths, short[] values) {
-    System.out.println("Setting the huffman table to the given value");
-    CreateHuffmanTree table = new CreateHuffmanTree(
-            lengths,
-            values);
-    return this;
-  }
-
-  public JPEG setDefaultHuffmanTable() {
-    System.out.println("Setting the default huffman table");
-    setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues());
     return this;
   }
 
