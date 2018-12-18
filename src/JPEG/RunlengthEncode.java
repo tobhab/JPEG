@@ -56,7 +56,7 @@ public class RunlengthEncode {
         runLength++;
         if(runLength == 16)
         {
-          System.out.println("long run");
+          //System.out.println("long run");
           runLength = 0;
           result[currentResultIndex++] = longZeroRun;
           result[currentResultIndex++] = 0;
@@ -67,16 +67,16 @@ public class RunlengthEncode {
       {
         while(result[currentResultIndex - 2] == longZeroRun)
         {
-          System.out.println("rewind long run");
+          //System.out.println("rewind long run");
           currentResultIndex -= 2;
         }
-        System.out.println("EOB @" + (currentBlockOffset + indexInCurrentBlock));
+        //System.out.println("EOB @" + (currentBlockOffset + indexInCurrentBlock));
         result[currentResultIndex++] = endOfBlockMarker;
         result[currentResultIndex++] = 0;
       }
       else
       {
-        System.out.println("(" + runLength + "," + arr[currentBlockOffset + indexInCurrentBlock ] + ")");
+        //System.out.println("(" + runLength + "," + arr[currentBlockOffset + indexInCurrentBlock ] + ")");
         result[currentResultIndex++] = runLength;
         result[currentResultIndex++] = arr[currentBlockOffset + indexInCurrentBlock ];
       }
