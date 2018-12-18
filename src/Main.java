@@ -18,7 +18,7 @@ public class Main {
   public static void main(String[] args) throws Exception {
     System.out.println("Starting compression algorithm:");
 
-    testBitStreamClasses();
+    //testBitStreamClasses();
 
     new JPEG()
         .readImage("Lenna.png")
