@@ -64,10 +64,10 @@ public class RunlengthEncode {
 
       if(indexInCurrentBlock >= blockLength)
       {
-        while(result[currentResultIndex - 2] == longZeroRunMarker)
+        while(result[currentResultIndex - 1] == longZeroRunMarker)
         {
           //System.out.println("rewind long run");
-          currentResultIndex -= 2;
+          currentResultIndex -= 1;
         }
         //System.out.println("EOB @" + (currentBlockOffset + indexInCurrentBlock));
         result[currentResultIndex++] = endOfBlockMarker;
