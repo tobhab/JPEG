@@ -35,14 +35,10 @@ public class Main {
         .differentalEncoding()
         .zickZack()
         .setDefaultHuffmanTable()
-        //
-        //// Manipulation der DCT Koeffizienten
-        //
-        //.manipulateQuantization(8, 8, 8, 8, 0)
-        //.manipulateQuantization(9, 8, 1, 1, 255)
-        //.manipulateQuantization(8, 15, 1, 1, 255)
-        //.manipulateQuantization(15, 15, 1, 1, 255)
-        //.saveQuantizationMatrix("layerY_manipulated.txt")
+        .runlengthEncode()
+        //.huffmanEncode()
+        //.huffmanDecode()
+        .runlengthDecode()
         .inverseZickZack()
         .inverseDifferentalEncoding()
         .dequantization()

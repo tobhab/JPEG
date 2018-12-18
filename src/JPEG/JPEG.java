@@ -25,6 +25,7 @@ public class JPEG {
   private Subsampling subsampling;
 
   private int blockSize;
+  private int blockCount;
   private int[][] quantMatrixLum;
   private int[][] quantMatrixChro;
 
@@ -47,6 +48,10 @@ public class JPEG {
   RunlengthEncode runlengthEncode_Y;
   RunlengthEncode runlengthEncode_Cb;
   RunlengthEncode runlengthEncode_Cr;
+
+  RunlengthDecode runlengthDecode_Y;
+  RunlengthDecode runlengthDecode_Cb;
+  RunlengthDecode runlengthDecode_Cr;
 
   InverseDifferentialEncoding inverseDifferental_Y;
   InverseDifferentialEncoding inverseDifferental_Cb;
@@ -128,7 +133,9 @@ public class JPEG {
     imageReader = new ImageReader(imagePath);
     width = imageReader.getRGBArray()[0].length;
     height = imageReader.getRGBArray().length;
+    setBlockCount((width / blockSize) * (height / blockSize));
     System.out.println("The image is " + width + "x" + height + "(height x width)");
+    System.out.println("There are " + blockCount + " blocks in the image");
     System.out.println(" done");
 
     lastResult3i = imageReader.getRGBArray();
@@ -208,6 +215,17 @@ public class JPEG {
    */
   public JPEG setBlockSize(int block_size) {
     this.blockSize = block_size;
+    return this;
+  }
+
+  /**
+   * Set the block count
+   *
+   * @param block_count
+   * @return this
+   */
+  public JPEG setBlockCount(int block_count) {
+    this.blockCount = block_count;
     return this;
   }
 
@@ -456,6 +474,18 @@ public class JPEG {
   public JPEG setDefaultHuffmanTable() {
     System.out.println("Setting the default huffman table");
     setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues());
+    return this;
+  }
+
+  public JPEG runlengthDecode() {
+    System.out.println("Performing Runlength-Decoding...");
+    runlengthDecode_Y = new RunlengthDecode(lastResult1i_Y, blockSize, blockCount);
+    runlengthDecode_Cb = new RunlengthDecode(lastResult1i_Cb, blockSize, blockCount);
+    runlengthDecode_Cr = new RunlengthDecode(lastResult1i_Cr, blockSize, blockCount);
+    System.out.println(" done");
+    lastResult1i_Y = runlengthDecode_Y.getResult();
+    lastResult1i_Cb = runlengthDecode_Cb.getResult();
+    lastResult1i_Cr = runlengthDecode_Cr.getResult();
     return this;
   }
 

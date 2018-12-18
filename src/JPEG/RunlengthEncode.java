@@ -6,14 +6,14 @@ public class RunlengthEncode {
 
   private int[] result;
 
-  public final int endOfBlockMarker = -1;
-  public final int longZeroRun = 17;
+  public final static int endOfBlockMarker = -1;
+  public final static int longZeroRunMarker = 17;
 
   /**
    * Generates a simplified RLE encoding so that no bit operations are needed to read the values in the resulting array.
    * Each AC value is split up into 2 values: Runlength and Value
-   * The pair (17,X) means a run of more then 16 zeros before a value.
-   * The pair (-1,X) means end of block
+   * If a run of 16 zeros is reached the longZeroRunMarker is inserted
+   * If the end of block is reached without any more non-zero values then the endOfBlockMarker is inserted
    *
    * @param arr
    * @param block_size
@@ -58,21 +58,19 @@ public class RunlengthEncode {
         {
           //System.out.println("long run");
           runLength = 0;
-          result[currentResultIndex++] = longZeroRun;
-          result[currentResultIndex++] = 0;
+          result[currentResultIndex++] = longZeroRunMarker;
         }
       }
 
       if(indexInCurrentBlock >= blockLength)
       {
-        while(result[currentResultIndex - 2] == longZeroRun)
+        while(result[currentResultIndex - 2] == longZeroRunMarker)
         {
           //System.out.println("rewind long run");
           currentResultIndex -= 2;
         }
         //System.out.println("EOB @" + (currentBlockOffset + indexInCurrentBlock));
         result[currentResultIndex++] = endOfBlockMarker;
-        result[currentResultIndex++] = 0;
       }
       else
       {
