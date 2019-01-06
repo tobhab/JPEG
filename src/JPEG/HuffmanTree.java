@@ -1,9 +1,9 @@
 package JPEG;
 
+import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 
-public class CreateHuffmanTree {
+public class HuffmanTree {
 
   ArrayList<Node> leafs;
   int all;
@@ -14,7 +14,7 @@ public class CreateHuffmanTree {
    *
    * @param arr
    */
-  public CreateHuffmanTree(int[] arr) {
+  public HuffmanTree(int[] arr) {
 
     all = arr.length;
     HashMap<Integer, Node> leafMap = new HashMap<Integer, Node>();
@@ -36,9 +36,9 @@ public class CreateHuffmanTree {
    * Build a Huffman table for a given lengths and values arrays like in section K in ITU-T81
    *
    * @param lengths The number of values for a given bit width
-   * @param values The values for the bit width
+   * @param values  The values for the bit width
    */
-  public CreateHuffmanTree(short[] lengths, short[] values) {
+  public HuffmanTree(short[] lengths, short[] values) {
     //The tree is constructed from the top down in this function
     root = new Node(null);
     Node current = root;
@@ -53,9 +53,9 @@ public class CreateHuffmanTree {
       nodesLeftInLevel = lengths[levelNumber];
       levelNumber++;
 
-      while(nodesLeftInLevel > 0)
-      {
+      while (nodesLeftInLevel > 0) {
         Node test = new Node(values[indexInValues++]);
+        leafs.add(test);
         nodesLeftInLevel--;
         current = current.addLeftMost(test);
       }
@@ -67,10 +67,10 @@ public class CreateHuffmanTree {
 
   /**
    * Create a balanced tree from all elements and their probability
-   * 
+   *
    * @return root node of tree
    */
-  public Node createTree() {
+  private Node createTree() {
     ArrayList<Node> tmp = new ArrayList<Node>();
 
     while (leafs.size() > 1) {
@@ -97,10 +97,10 @@ public class CreateHuffmanTree {
 
   /**
    * Create a inbalanced tree from all elements and their probability (not good)
-   * 
+   *
    * @return root node of tree
    */
-  public Node createTree2() {
+  private Node createTree2() {
     while (leafs.size() > 1) {
       root = new Node(leafs.remove(0), leafs.remove(0));
       leafs.add(0, root);
@@ -120,6 +120,63 @@ public class CreateHuffmanTree {
     System.out.printf("Value: %3d/%d Codewort: %s\n", n.value, n.probability, code);
   }
 
+  public void printInOrder(Node n)
+  {
+    if(n.left != null)
+    {
+      printInOrder(n.left);
+    }
+    if(n.isNode)
+    {
+      System.out.print("Node ");
+    }
+    else
+    {
+      System.out.print("Leaf ");
+    }
+    System.out.println(n);
+    if(n.right != null)
+    {
+      printInOrder(n.right);
+    }
+  }
+
+  public int lookUpCodeNumber(BitStreamReader reader) throws IOException {
+    return root.findValueByCode(reader);
+  }
+
+  public void writeCodeToWriter(BitStreamWriter writer, int codeToWrite) throws IOException {
+    for (Node leaf : leafs) {
+      if (leaf.value == codeToWrite) {
+        CodeWord codeWordToWrite = leaf.getCode();
+        writeToWriter(writer, codeWordToWrite);
+        break;
+      }
+    }
+  }
+
+  private void writeToWriter(BitStreamWriter writer, String binaryCodeAsString) throws IOException {
+    for (int i = 0; i < binaryCodeAsString.length(); i++) {
+      if (binaryCodeAsString.charAt(i) == '0') {
+        writer.write(false);
+      } else //assume it's a '1'
+      {
+        writer.write(true);
+      }
+    }
+  }
+
+  private void writeToWriter(BitStreamWriter writer, CodeWord codeWord) throws IOException {
+    writer.write(codeWord.code, codeWord.bitCount);
+  }
+}
+
+class CodeWord {
+  /**
+   * holds the bits right aligned and MSB on the left
+   */
+  public int code = 0;
+  public int bitCount = 0;
 }
 
 /**
@@ -147,43 +204,67 @@ class Node {
     }
   }
 
-  public Node(Node parent)
-  {
-    this(null,null);
+  public Node(Node parent) {
+    this(null, null);
     this.parent = parent;
   }
 
-  public String getCode() {
+  public String getCodeAsString() {
     if (parent == null) {
       return "";
     }
-    return parent.getCode(this);
+    return parent.getCodeAsString(this);
   }
 
-  private String getCode(Node caller) {
+  private String getCodeAsString(Node caller) {
     if (caller == left) {
-      return getCode() + "0";
+      return getCodeAsString() + "0";
     } else {
-      return getCode() + "1";
+      return getCodeAsString() + "1";
     }
+  }
+
+  public CodeWord getCode() {
+    CodeWord codeWord = getCode(new CodeWord());
+    return codeWord;
+  }
+
+  private CodeWord getCode(CodeWord codeWord) {
+    if (parent == null) {
+      return codeWord;
+    }
+    return parent.getCode(this, codeWord);
+  }
+
+  private CodeWord getCode(Node caller, CodeWord codeWord) {
+    if (caller == left) {
+      //rightmost bit must be set to zero
+      //Nothing to be done since numbers are by default all zero
+    } else {
+      //rightmost bit must be set to one
+      codeWord.code |= 1 << codeWord.bitCount;
+    }
+    codeWord.bitCount++;
+
+    return getCode(codeWord);
   }
 
   /**
    * Add the given node to the left most postition below this node.
    * It tries to traverse the tree on the same level to find a location to add the node
+   *
    * @param toAdd
    * @return The parent to which the node was actually added
    */
-  public Node addLeftMost(Node toAdd)
-  {
-    if(left == null)
-    {
+  public Node addLeftMost(Node toAdd) {
+    if (left == null) {
       left = toAdd;
-      return  this;
+      left.parent = this;
+      return this;
     }
-    if(right == null)
-    {
+    if (right == null) {
       right = toAdd;
+      right.parent = this;
       return traverseRight();
     }
     Node toReturn = traverseRight();
@@ -193,15 +274,14 @@ class Node {
 
   /**
    * Searches and returns the node which is to the right on the same level in the tree
+   *
    * @return The node which is to the right of this node
    */
   private Node traverseRight() {
     int stepsUp = 0;
     Node current = this;
-    while(current.right != null)
-    {
-      if(current.parent == null)
-      {
+    while (current.right != null) {
+      if (current.parent == null) {
         //using runtime exceptions since they don't need to be added to the method signature
         throw new RuntimeException();
       }
@@ -211,38 +291,46 @@ class Node {
 
     current.right = new Node(current);
     current = current.right;
-    while (stepsUp > 0)
-    {
+    while (--stepsUp > 0) {
       current.left = new Node(current);
       current = current.left;
-      stepsUp--;
     }
     return current;
   }
 
   /**
-   *
    * @return The node which was able to be placed directly below or to the right below this node
    */
-  public  Node traverseDown() {
-    if(left == null)
-    {
+  public Node traverseDown() {
+    if (left == null) {
       left = new Node(this);
       return left;
     }
-    if(right == null)
-    {
+    if (right == null) {
       right = new Node(this);
       return right;
     }
-     return traverseRight().traverseDown();
+    return traverseRight().traverseDown();
+  }
+
+  public int findValueByCode(BitStreamReader reader) throws IOException {
+    if (!isNode) //is a leaf
+    {
+      return value;
+    }
+    boolean nextBit = reader.readBit();
+    if (nextBit) {
+      return right.findValueByCode(reader);
+    } else {
+      return left.findValueByCode(reader);
+    }
   }
 
   public String toString() {
     String s = "";
     if (isNode)
       s += "Node[";
-    if (!isNode)
+    else
       s += "Leaf[";
     s += "Value: " + value;
     s += " Probability: " + probability;
