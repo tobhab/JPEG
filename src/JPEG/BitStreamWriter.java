@@ -38,7 +38,7 @@ public class BitStreamWriter implements Closeable {
    * @throws IOException
    */
   public void write(int values, int n) throws IOException {
-    int andBy = ~((1 << n) - 1);//Generate a mask for the lower bits, to...
+    int andBy = ((1 << n) - 1);//Generate a mask for the lower bits, to...
     values = values & andBy;    //...zero the unused top bits to avoid data corruption
     bits <<= n;                 //Make room on the right side to ...
     bits |= values;             //...push new values in there
@@ -57,8 +57,8 @@ public class BitStreamWriter implements Closeable {
   @Override
   public void close() throws IOException {
     if (storedBits != 0) {
-      //save the remaining bits and do padding with 0 bits
-      write(0, bitsStoredAtOnce - (storedBits % bitsStoredAtOnce));
+      //save the remaining bits and do padding with 1 bits according to spec
+      write(-1, bitsStoredAtOnce - (storedBits % bitsStoredAtOnce));
     }
     out.close();
   }
