@@ -61,7 +61,14 @@ public class JPEG {
   ZickZackInverse zickZackInverseCb;
   ZickZackInverse zickZackInverseCr;
 
-  CreateHuffmanTree entropyEncoding;
+  HuffmanTree huffmanTreeAcY;
+  HuffmanTree huffmanTreeDcY;
+  HuffmanTree huffmanTreeAcCx;
+  HuffmanTree huffmanTreeDcCx;
+
+  HuffmanEncoding huffmanEncoding_Y;
+  HuffmanEncoding huffmanEncoding_Cb;
+  HuffmanEncoding huffmanEncoding_Cr;
 
   Dequantization dequantY;
   Dequantization dequantCb;
@@ -91,6 +98,10 @@ public class JPEG {
   double[][] lastResult2d_Cr;
 
   double[][][] lastResult3d;
+
+  byte[] lastResult1b_Y;
+  byte[] lastResult1b_Cb;
+  byte[] lastResult1b_Cr;
 
   int[] lastResult1i_Y;
   int[] lastResult1i_Cb;
@@ -463,17 +474,67 @@ public class JPEG {
     return this;
   }
 
-  public JPEG setHuffmanTable(short[] lengths, short[] values) {
-    System.out.println("Setting the huffman table to the given value");
-    CreateHuffmanTree table = new CreateHuffmanTree(
+  public JPEG setHuffmanTable(short[] lengths, short[] values, boolean isLuminance, boolean isDCValues) {
+    HuffmanTree table = new HuffmanTree(
             lengths,
             values);
+    System.out.print("Setting the huffman table for ");
+    if(isLuminance)
+    {
+      System.out.print("Luminance ");
+      if(isDCValues)
+      {
+        huffmanTreeDcY = table;
+        System.out.print("DC ");
+      }
+      else
+      {
+        huffmanTreeAcY = table;
+        System.out.print("AC ");
+      }
+    }
+    else
+    {
+      System.out.print("Chrominance ");
+      if(isDCValues)
+      {
+        huffmanTreeDcCx = table;
+        System.out.print("DC ");
+      }
+      else
+      {
+        huffmanTreeAcCx = table;
+        System.out.print("AC ");
+      }
+    }
+    System.out.println("to the given value");
     return this;
   }
 
-  public JPEG setDefaultHuffmanTable() {
+  public JPEG setDefaultHuffmanTables() {
     System.out.println("Setting the default huffman table");
-    setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues());
+    setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues(), false, false);
+    setHuffmanTable(JPEGHuffmanTable.StdDCChrominance.getLengths(), JPEGHuffmanTable.StdDCChrominance.getValues(), false, true);
+    setHuffmanTable(JPEGHuffmanTable.StdACLuminance.getLengths(), JPEGHuffmanTable.StdACLuminance.getValues(), true, false);
+    setHuffmanTable(JPEGHuffmanTable.StdDCLuminance.getLengths(), JPEGHuffmanTable.StdDCLuminance.getValues(), true, true);
+    return this;
+  }
+
+  public JPEG huffmanEncode() {
+    try {
+      huffmanEncoding_Y = new HuffmanEncoding(lastResult1i_Y, huffmanTreeAcY, huffmanTreeDcY);
+      huffmanEncoding_Cb = new HuffmanEncoding(lastResult1i_Cb, huffmanTreeAcCx, huffmanTreeDcCx);
+      huffmanEncoding_Cr = new HuffmanEncoding(lastResult1i_Cr, huffmanTreeAcCx, huffmanTreeDcCx);
+      lastResult1b_Y = huffmanEncoding_Y.getResult();
+      lastResult1b_Cb = huffmanEncoding_Cb.getResult();
+      lastResult1b_Cr = huffmanEncoding_Cr.getResult();
+
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+
     return this;
   }
 
@@ -529,6 +590,7 @@ public class JPEG {
    * 
    * @return this
    */
+  @Deprecated
   public JPEG createHuffmanTables() {
 
     // join all zick-zack arrays of all layers
@@ -550,7 +612,7 @@ public class JPEG {
       offset += arr.length;
     }
 
-    entropyEncoding = new CreateHuffmanTree(result);
+    huffmanTreeAcCx = new HuffmanTree(result);
     return this;
   }
 
