@@ -467,7 +467,7 @@ public class JPEG {
   }
 
   public JPEG runlengthEncode() {
-    System.out.println("Performing Runlength-Encoding...");
+    System.out.print("Performing Runlength-Encoding...");
     runlengthEncode_Y = new RunlengthEncode(lastResult1i_Y, blockSize);
     runlengthEncode_Cb = new RunlengthEncode(lastResult1i_Cb, blockSize);
     runlengthEncode_Cr = new RunlengthEncode(lastResult1i_Cr, blockSize);
@@ -526,6 +526,7 @@ public class JPEG {
 
   public JPEG huffmanEncode() {
     try {
+      System.out.print("Performing Huffman-Encoding...");
       huffmanEncoding_Y = new HuffmanEncoding(lastResult1i_Y, huffmanTreeAcY, huffmanTreeDcY);
       huffmanEncoding_Cb = new HuffmanEncoding(lastResult1i_Cb, huffmanTreeAcCx, huffmanTreeDcCx);
       huffmanEncoding_Cr = new HuffmanEncoding(lastResult1i_Cr, huffmanTreeAcCx, huffmanTreeDcCx);
@@ -533,7 +534,7 @@ public class JPEG {
       lastResult1b_Cb = huffmanEncoding_Cb.getResult();
       lastResult1b_Cr = huffmanEncoding_Cr.getResult();
 
-
+      System.out.println(" done");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -544,15 +545,15 @@ public class JPEG {
 
   public JPEG huffmanDecode() {
     try {
+      System.out.print("Performing Huffman-Decoding...");
 
-      huffmanDecoding_Y = new HuffmanDecoding(lastResult1b_Y, blockCount, blockSize, huffmanTreeAcY, huffmanTreeDcY, lastResult1i_Y);
-      //huffmanDecoding_Cb = new HuffmanDecoding(lastResult1b_Cb, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, lastResult1i_Cb);
-      //huffmanDecoding_Cr = new HuffmanDecoding(lastResult1b_Cr, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, lastResult1i_Cr);
+      huffmanDecoding_Y = new HuffmanDecoding(lastResult1b_Y, blockCount, blockSize, huffmanTreeAcY, huffmanTreeDcY);
+      huffmanDecoding_Cb = new HuffmanDecoding(lastResult1b_Cb, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx);
+      huffmanDecoding_Cr = new HuffmanDecoding(lastResult1b_Cr, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx);
       lastResult1i_Y = huffmanDecoding_Y.getResult();
-      //lastResult1i_Cb = huffmanDecoding_Cb.getResult();
-      //lastResult1i_Cr = huffmanDecoding_Cr.getResult();
-
-
+      lastResult1i_Cb = huffmanDecoding_Cb.getResult();
+      lastResult1i_Cr = huffmanDecoding_Cr.getResult();
+      System.out.println(" done");
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -562,7 +563,7 @@ public class JPEG {
   }
 
   public JPEG runlengthDecode() {
-    System.out.println("Performing Runlength-Decoding...");
+    System.out.print("Performing Runlength-Decoding...");
     runlengthDecode_Y = new RunlengthDecode(lastResult1i_Y, blockSize, blockCount);
     runlengthDecode_Cb = new RunlengthDecode(lastResult1i_Cb, blockSize, blockCount);
     runlengthDecode_Cr = new RunlengthDecode(lastResult1i_Cr, blockSize, blockCount);

@@ -41,13 +41,10 @@ public class HuffmanDecoding {
         if (acValueCode == 0x00) //EOB
         {
           result[indexInResult++] = RunlengthEncode.endOfBlockMarker;
-          System.out.print("Reached a EOB");
           break;
         } else if (acValueCode == 0xF0) //LZR
         {
           result[indexInResult++] = RunlengthEncode.longZeroRunMarker;
-          int igdfdfdn = 0;
-          System.out.print("Reached a LZR");
           continue;
         } else {
           int acRunLength = acValueCode >> 4;
