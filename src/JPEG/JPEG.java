@@ -70,6 +70,10 @@ public class JPEG {
   HuffmanEncoding huffmanEncoding_Cb;
   HuffmanEncoding huffmanEncoding_Cr;
 
+  HuffmanDecoding huffmanDecoding_Y;
+  HuffmanDecoding huffmanDecoding_Cb;
+  HuffmanDecoding huffmanDecoding_Cr;
+
   Dequantization dequantY;
   Dequantization dequantCb;
   Dequantization dequantCr;
@@ -528,6 +532,25 @@ public class JPEG {
       lastResult1b_Y = huffmanEncoding_Y.getResult();
       lastResult1b_Cb = huffmanEncoding_Cb.getResult();
       lastResult1b_Cr = huffmanEncoding_Cr.getResult();
+
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+
+    return this;
+  }
+
+  public JPEG huffmanDecode() {
+    try {
+
+      huffmanDecoding_Y = new HuffmanDecoding(lastResult1b_Y, blockCount, blockSize, huffmanTreeAcY, huffmanTreeDcY, lastResult1i_Y);
+      //huffmanDecoding_Cb = new HuffmanDecoding(lastResult1b_Cb, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, lastResult1i_Cb);
+      //huffmanDecoding_Cr = new HuffmanDecoding(lastResult1b_Cr, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, lastResult1i_Cr);
+      lastResult1i_Y = huffmanDecoding_Y.getResult();
+      //lastResult1i_Cb = huffmanDecoding_Cb.getResult();
+      //lastResult1i_Cr = huffmanDecoding_Cr.getResult();
 
 
     } catch (IOException e) {

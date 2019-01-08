@@ -19,17 +19,16 @@ public class HuffmanEncoding {
       int dcValue = arr[nextIndex++];
       int dcValueBitWidth = getBitWidth(dcValue);
 
+      encodingTreeDC.writeCodeToWriter(writer, dcValueBitWidth);
       if (dcValueBitWidth == 0) //special case of a DC block being a EOB marker, keep going with the next block
       {
-        encodingTreeDC.writeCodeToWriter(writer, dcValueBitWidth);
         continue;
       }
 
-      if (dcValue < 0) {
+      if (dcValue <= 0) {
         dcValue = (int) Math.pow(2, dcValueBitWidth) - 1 + dcValue;
       }
 
-      encodingTreeDC.writeCodeToWriter(writer, dcValueBitWidth);
       writer.write(dcValue, dcValueBitWidth);
 
       //Encode ACs till an EOB is reached
@@ -39,16 +38,22 @@ public class HuffmanEncoding {
         if (runlength == RunlengthEncode.longZeroRunMarker) {
           //Encode LZR
           encodingTreeAC.writeCodeToWriter(writer, 0xF0);
-          break;
+          continue; //keep going with the next value in this block
         }
 
-        int value = arr[nextIndex++];
-        int bitsize = getBitWidth(value);
+        int acValue = arr[nextIndex++];
+        int bitsize = getBitWidth(acValue);
+
+        if(acValue <= 0)
+        {
+          acValue = (int) Math.pow(2, bitsize) - 1 + acValue;
+        }
 
         //Encode (runlength,bitsize)(value)
         encodingTreeAC.writeCodeToWriter(writer, (runlength << 4) | bitsize);
-        writer.write(value, bitsize);
+        writer.write(acValue, bitsize);
       }
+      nextIndex++; //We need to skip the EOB marker
       //Encode EOB
       encodingTreeAC.writeCodeToWriter(writer, 0x00);
     }

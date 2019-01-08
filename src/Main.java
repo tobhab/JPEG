@@ -37,7 +37,7 @@ public class Main {
         .setDefaultHuffmanTables()
         .runlengthEncode()
         .huffmanEncode()
-        //.huffmanDecode()
+        .huffmanDecode()
         .runlengthDecode()
         .inverseZickZack()
         .inverseDifferentalEncoding()
