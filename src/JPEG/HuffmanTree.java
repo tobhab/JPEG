@@ -109,6 +109,35 @@ public class HuffmanTree {
     return root;
   }
 
+  /**
+   * Compiles an array of how many leafs are per level and the leafs in order
+   * @return
+   */
+  public int[][] getArrays() {
+    int[] lengthPerLevel = new int[16];
+
+    List<Node> nodes = getInOrder(root);
+    List<Node> leafsInORder = new ArrayList<>();
+    for (Node node :
+            nodes) {
+      if (!node.isNode) {
+        leafsInORder.add(node);
+        System.out.println(node.getDepth());
+      }
+    }
+
+    int[] nodeValues = new int[leafsInORder.size()];
+    int nodesSize = leafsInORder.size();
+    for (int i = 0; i < nodesSize; i++) {
+      int leafDepth = leafsInORder.get(i).getDepth();
+
+      lengthPerLevel[leafDepth]++;
+      nodeValues[i] = leafsInORder.get(i).value;
+    }
+
+    return new int[][]{lengthPerLevel,nodeValues};
+  }
+
   public void printTree(Node n, String code) {
     if (n.isNode) {
       if (n.left != null)
@@ -120,24 +149,37 @@ public class HuffmanTree {
     System.out.printf("Value: %3d/%d Codewort: %s\n", n.value, n.probability, code);
   }
 
+  public List<Node> getInOrder(Node root) {
+    List<Node> returnList = null;
+
+    if (root.left != null) {
+      returnList = getInOrder(root.left);
+    }
+
+    if (returnList == null) {
+      returnList = new ArrayList<>();
+    }
+    returnList.add(root);
+
+    if (root.right != null) {
+      returnList.addAll(getInOrder(root.right));
+    }
+    return returnList;
+  }
+
   public void printInOrder(Node n)
   {
-    if(n.left != null)
-    {
-      printInOrder(n.left);
-    }
-    if(n.isNode)
-    {
-      System.out.print("Node ");
-    }
-    else
-    {
-      System.out.print("Leaf ");
-    }
-    System.out.println(n);
-    if(n.right != null)
-    {
-      printInOrder(n.right);
+    List<Node> returnList = getInOrder(n);
+    for (Node node :
+            returnList) {
+      if (node.isNode)
+      {
+        System.out.println("Node: " + node);
+      }
+      else
+      {
+        System.out.println("Leaf: " + node);
+      }
     }
   }
 
@@ -247,6 +289,18 @@ class Node {
     codeWord.bitCount++;
 
     return getCode(codeWord);
+  }
+
+  public int getDepth()
+  {
+    if(parent == null)
+    {
+      return -1;
+    }
+    else
+    {
+      return parent.getDepth() + 1;
+    }
   }
 
   /**
