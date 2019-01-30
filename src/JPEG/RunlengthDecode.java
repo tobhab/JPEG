@@ -31,6 +31,7 @@ public class RunlengthDecode {
           //skip to the next block boundary
           currentWriteIndex = ((currentWriteIndex + blockLength - 1) / blockLength) * blockLength;
           break;
+		//Check if we reach a long zero run marker
         } else if (arr[currentDecodeIndex] == RunlengthEncode.longZeroRunMarker) {
           currentDecodeIndex++;
           //skip over the zeros

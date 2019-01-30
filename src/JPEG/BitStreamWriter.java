@@ -2,6 +2,10 @@ package JPEG;
 
 import java.io.*;
 
+/**
+ * Class for efficiently writing bits to a datastream.
+ */
+
 public class BitStreamWriter implements Closeable {
 
   OutputStream out;
@@ -20,6 +24,9 @@ public class BitStreamWriter implements Closeable {
     this.out = out;
   }
 
+  /**
+   * Writes a single bit into the stream.
+   */
   public void write(boolean value) throws IOException {
     bits <<= 1;             //Make room on the right side to ...
     bits |= value ? 1 : 0;  // ...push in another bit there.
@@ -27,14 +34,18 @@ public class BitStreamWriter implements Closeable {
     writeFullBytes();
   }
 
+  /**
+   * Writes the 32 bits from the given int into the stream.
+   */
   public void write(int values) throws IOException {
     write(values, 32);
   }
 
   /**
-   * Writes the n rightmost bits into the stream in the order MSB to LSB
-   * @param values
-   * @param n
+   * Writes the n rightmost bits into the stream
+   * @param values Bit which are going to be saved into the stream, aligned to the right.
+   * The most significat bit is on the left.
+   * @param n Number of bits which are going to be saved into the stream.
    * @throws IOException
    */
   public void write(int values, int n) throws IOException {
@@ -46,6 +57,9 @@ public class BitStreamWriter implements Closeable {
     writeFullBytes();
   }
 
+  /**
+   * Checks if enough bits are puffered and then writes them out into the stream.
+   */
   private void writeFullBytes() throws IOException {
     while (storedBits >= bitsStoredAtOnce) {
       storedBits -= bitsStoredAtOnce;
@@ -54,6 +68,10 @@ public class BitStreamWriter implements Closeable {
     }
   }
 
+  /**
+   * Writes the remaining bits into the stream and then closes the connection.
+   * The unused bits which are on the right of the byte are padded with '1'-bits.
+   */
   @Override
   public void close() throws IOException {
     if (storedBits != 0) {

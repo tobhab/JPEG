@@ -9,6 +9,9 @@ import java.util.Arrays;
 public class HuffmanDecoding {
   int[] result;
 
+  /**
+   * Decodes the huffman encoded codes with the given trees
+   */
   public HuffmanDecoding(byte[] arr, int blockCount, int blockWidth, HuffmanTree decodingTreeAC, HuffmanTree decodingTreeDC) throws IOException {
 
     ByteArrayInputStream in = new ByteArrayInputStream(arr);
@@ -29,6 +32,7 @@ public class HuffmanDecoding {
       }
       //read dc value
       int dcValue = reader.readBits(dcValueCode);
+	  //Reverse the special encoding for negative DC values, see the encoding phase.
       if (dcValue < Math.pow(2, dcValueCode - 1)) {
         int twoPowN = (int) Math.pow(2, dcValueCode);
         dcValue = dcValue - twoPowN + 1;
@@ -53,6 +57,7 @@ public class HuffmanDecoding {
           int acBitLength = acValueCode & 0xF;
           int acValue = reader.readBits(acBitLength);
 
+		  //Reverse the special encoding for negative AC values, see the encoding phase.
           if (acValue < Math.pow(2, acBitLength - 1)) {
             int twoPowN = (int) Math.pow(2, acBitLength);
             acValue = acValue - twoPowN + 1;

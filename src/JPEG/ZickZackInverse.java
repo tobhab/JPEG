@@ -3,7 +3,6 @@ package JPEG;
 public class ZickZackInverse {
 
   private int N;
-  private int index = 0;
   private int[][] result;
 
   //The inner array represents at which location in the 2d array the location in the 1d array ends up
@@ -32,18 +31,20 @@ public class ZickZackInverse {
     result = new int[width][height];
 
     int offset = 0;
-    // for each block of image
+    // For each row in the image...
     for (int y_block = 0; y_block < height; y_block += N)
     {
+      // ... for each row in the image...
       for (int x_block = 0; x_block < width; x_block += N)
       {
-        zickzackInverse(arr, offset, y_block, x_block);
+        //... we are inversing the zickzack encoding
+        zickzackInverseBlock(arr, offset, y_block, x_block);
         offset += N * N;
       }
     }
   }
 
-  public void zickzackInverse(int[] arr, int offsetInArr, int y_block, int x_block) throws Error {
+  private void zickzackInverseBlock(int[] arr, int offsetInArr, int y_block, int x_block) throws Error {
     int rows = y_block;
     int columns = x_block;
 

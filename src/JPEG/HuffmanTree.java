@@ -110,7 +110,8 @@ public class HuffmanTree {
   }
 
   /**
-   * Compiles an array of how many leafs are per level and the leafs in order
+   * Compiles an array of how many leafs are per level and the leafs in order.
+   * The arrays are of the same format which is saved in the jpeg file.
    * @return
    */
   public int[][] getArrays() {
@@ -149,6 +150,9 @@ public class HuffmanTree {
     System.out.printf("Value: %3d/%d Codewort: %s\n", n.value, n.probability, code);
   }
 
+  /**
+   * Returns all the nodes and leafs in the tree as a list in order
+   */
   public List<Node> getInOrder(Node root) {
     List<Node> returnList = null;
 
@@ -183,33 +187,24 @@ public class HuffmanTree {
     }
   }
 
+  /**
+   * Returns the value encoded by the first codeword in the binary stream
+   */
   public int lookUpCodeNumber(BitStreamReader reader) throws IOException {
     return root.findValueByCode(reader);
   }
 
-  public void writeCodeToWriter(BitStreamWriter writer, int codeToWrite) throws IOException {
+  /**
+   * Looks up the code in the huffman tree for the value and writes it's coded form into the writer
+   */
+  public void writeCodeToWriter(BitStreamWriter writer, int valueToWrite) throws IOException {
     for (Node leaf : leafs) {
-      if (leaf.value == codeToWrite) {
+      if (leaf.value == valueToWrite) {
         CodeWord codeWordToWrite = leaf.getCode();
-        writeToWriter(writer, codeWordToWrite);
+        writer.write(codeWordToWrite.code, codeWordToWrite.bitCount);
         break;
       }
     }
-  }
-
-  private void writeToWriter(BitStreamWriter writer, String binaryCodeAsString) throws IOException {
-    for (int i = 0; i < binaryCodeAsString.length(); i++) {
-      if (binaryCodeAsString.charAt(i) == '0') {
-        writer.write(false);
-      } else //assume it's a '1'
-      {
-        writer.write(true);
-      }
-    }
-  }
-
-  private void writeToWriter(BitStreamWriter writer, CodeWord codeWord) throws IOException {
-    writer.write(codeWord.code, codeWord.bitCount);
   }
 }
 
@@ -291,6 +286,11 @@ class Node {
     return getCode(codeWord);
   }
 
+  /**
+   * Returns the depth of a node. The root in this case has the depth of -1, 
+   * because the first layer below that (depth 0) is the first one where data
+   * can be stored without being a trivial huffman tree with only one stored value.
+   */
   public int getDepth()
   {
     if(parent == null)
@@ -327,7 +327,7 @@ class Node {
   }
 
   /**
-   * Searches and returns the node which is to the right on the same level in the tree
+   * Creates the necessary nodes so that the returned node lies to the right of this one.
    *
    * @return The node which is to the right of this node
    */
@@ -337,6 +337,7 @@ class Node {
     while (current.right != null) {
       if (current.parent == null) {
         //using runtime exceptions since they don't need to be added to the method signature
+        //This also should never be used except when someone tries to edit this function.
         throw new RuntimeException();
       }
       current = current.parent;
@@ -353,6 +354,7 @@ class Node {
   }
 
   /**
+   * Creates the necessary nodes so that the returned node lies below this node
    * @return The node which was able to be placed directly below or to the right below this node
    */
   public Node traverseDown() {
@@ -364,9 +366,13 @@ class Node {
       right = new Node(this);
       return right;
     }
+	//No free nodes under this one, move the right and find an empty spot there
     return traverseRight().traverseDown();
   }
 
+  /**
+   * Looks up which value corresponds to the code which was written first in the reader.
+   */
   public int findValueByCode(BitStreamReader reader) throws IOException {
     if (!isNode) //is a leaf
     {

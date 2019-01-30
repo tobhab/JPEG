@@ -6,6 +6,9 @@ import java.io.IOException;
 public class HuffmanEncoding {
   byte[] result;
 
+  /**
+   * Encodes the DC and AC componets in the given array with the given huffman trees.
+   */
   public HuffmanEncoding(int[] arr, HuffmanTree encodingTreeAC, HuffmanTree encodingTreeDC) throws IOException {
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -25,6 +28,9 @@ public class HuffmanEncoding {
         continue;
       }
 
+      /*
+      * Negative dc values are encoded in a special way which is explained in F1.2.1.1 in ITU-T81
+       */
       if (dcValue <= 0) {
         dcValue = (int) Math.pow(2, dcValueBitWidth) - 1 + dcValue;
       }
@@ -44,6 +50,9 @@ public class HuffmanEncoding {
         int acValue = arr[nextIndex++];
         int bitsize = getBitWidth(acValue);
 
+        /*
+         * Negative ac values are encoded in a special way which is explained in F1.2.2.1 in ITU-T81
+         */
         if(acValue <= 0)
         {
           acValue = (int) Math.pow(2, bitsize) - 1 + acValue;

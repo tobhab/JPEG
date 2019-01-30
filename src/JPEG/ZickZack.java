@@ -34,11 +34,13 @@ public class ZickZack {
     result = new int[width * height];
 
     int offsetForBlock = 0;
-    // for each block of image
+    // for each block in each row...
     for (int y_block = 0; y_block < height; y_block += N)
     {
+      //... and in each column...
       for (int x_block = 0; x_block < width; x_block += N)
       {
+        //... are we performing the zigzack encoding
         zickzack(arr, y_block, x_block, offsetForBlock);
         offsetForBlock += N*N;
       }
@@ -51,6 +53,10 @@ public class ZickZack {
 
     for (int x = 0; x < N; x++) {
       for (int y = 0; y < N; y++) {
+        /*
+         * The encoding of each cell in the block is done with a index lookup.
+         * This could have been done with traversing the block each time, but that would be much less understandable.
+         */
         int indexInBlock = zickZackMapping8[x][y] - 1;
         result[offsetForBlock + indexInBlock] = arr[x_block + x][y_block + y];
       }

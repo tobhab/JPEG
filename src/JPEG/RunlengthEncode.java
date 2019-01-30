@@ -24,6 +24,7 @@ public class RunlengthEncode {
     int blockLength = block_size * block_size;
     //Points to the next free index where data can be written to
     int currentResultIndex = 0;
+	//Points to the offset of the block which is currently being processed
     int currentBlockOffset = 0;
     /*
      * This is the longest a RLE could be, we just made sure that this always fits into the destination array.
@@ -34,8 +35,6 @@ public class RunlengthEncode {
     do
     {
       currentResultIndex = encodeBlock(arr, blockLength, currentBlockOffset, currentResultIndex);
-
-
       currentBlockOffset += blockLength;
     }
     while(currentBlockOffset < arr.length);
@@ -43,20 +42,29 @@ public class RunlengthEncode {
     result = Arrays.copyOfRange(result,0,currentResultIndex);
   }
 
+  /**
+   * Performs runlength-encoding for a single block.
+   */
   private int encodeBlock(int[] arr, int blockLength, int currentBlockOffset, int currentResultIndex) {
     //Just copy the dc component to the result array, will be compressed in the huffman stage
     result[currentResultIndex++] = arr[currentBlockOffset];
     int indexInCurrentBlock = 0;
+	
+	//Do runs for the entire block.
     while(indexInCurrentBlock < (blockLength - 1))
     {
       int runLength = 0;
 
+	  //Count the number of zeros which are in the current run and make sure we don't leave the current block
       while(++indexInCurrentBlock <= (blockLength-1) && arr[currentBlockOffset + indexInCurrentBlock] == 0)
       {
         runLength++;
         if(runLength == 16)
         {
-          //System.out.println("long run");
+	      /*
+		   * We reached a situation where there are 16 zeros in the current run.
+		   * Since we only have 4 bits to save the length later we need to insert a marker.
+		   */
           runLength = 0;
           result[currentResultIndex++] = longZeroRunMarker;
         }
@@ -64,21 +72,30 @@ public class RunlengthEncode {
 
       if(indexInCurrentBlock >= blockLength)
       {
+	    /*
+		 * Here we have reached the end of the block and didn't encounter any non-zero values for a while.
+		 * Since we have inserted long zero runs we need to remove them again...
+		 */
         while(result[currentResultIndex - 1] == longZeroRunMarker)
         {
-          //System.out.println("rewind long run");
           currentResultIndex -= 1;
         }
-        //System.out.println("EOB @" + (currentBlockOffset + indexInCurrentBlock));
+		
+		/* 
+		 * ...and insert an end of block marker here.
+		 */
         result[currentResultIndex++] = endOfBlockMarker;
       }
       else
       {
-        //System.out.println("(" + runLength + "," + arr[currentBlockOffset + indexInCurrentBlock ] + ")");
+	    /*
+		 * We have reached a non-zero value and are still within the block, save the number of zeros and the value after the run.
+		 */
         result[currentResultIndex++] = runLength;
         result[currentResultIndex++] = arr[currentBlockOffset + indexInCurrentBlock ];
       }
     }
+	
     //Must make sure that it ends with an end of block marker, if there is a checkerboard pattern then the very last coefficient might not be zero
     if(result[currentResultIndex - 1] != endOfBlockMarker)
     {
@@ -91,5 +108,4 @@ public class RunlengthEncode {
   public int[] getResult() {
     return result;
   }
-
 }
