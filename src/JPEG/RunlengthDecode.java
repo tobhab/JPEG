@@ -21,7 +21,9 @@ public class RunlengthDecode {
 
     result = new int[blockLength * blockCount];
 
+    int origBlockCount = blockCount;
     while (blockCount-- > 0) {
+      int startOfBlockIndex = currentWriteIndex;
       //Copy DC value into the output array
       result[currentWriteIndex++] = arr[currentDecodeIndex++];
       while (true) {
@@ -43,6 +45,10 @@ public class RunlengthDecode {
           currentWriteIndex += arr[currentDecodeIndex++];
           //...and add the value behind that
           result[currentWriteIndex++] = arr[currentDecodeIndex++];
+
+          //And now we might be the very last coefficent in the block which is set, then we need to finish this block and go to the next
+          if((currentWriteIndex - startOfBlockIndex) == blockLength)
+            break;
         }
       }
     }

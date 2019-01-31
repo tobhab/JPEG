@@ -96,11 +96,7 @@ public class RunlengthEncode {
       }
     }
 	
-    //Must make sure that it ends with an end of block marker, if there is a checkerboard pattern then the very last coefficient might not be zero
-    if(result[currentResultIndex - 1] != endOfBlockMarker)
-    {
-      result[currentResultIndex++] = endOfBlockMarker;
-    }
+    //According to ITU-t81 F.1.2.3 the last EOB marker is bypassed if the very last coefficient is already set
 
     return currentResultIndex;
   }
