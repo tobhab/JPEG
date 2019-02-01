@@ -479,49 +479,46 @@ public class JPEG {
     return this;
   }
 
-  public JPEG setHuffmanTable(short[] lengths, short[] values, boolean isLuminance, boolean isDCValues) {
+  public JPEG setHuffmanTable(short[] lengths, short[] values, HuffmanTree.HuffmanTreeType type) {
     HuffmanTree table = new HuffmanTree(
             lengths,
             values);
+
     System.out.print("Setting the huffman table for ");
-    if(isLuminance)
+    switch (  type)
     {
-      System.out.print("Luminance ");
-      if(isDCValues)
-      {
-        huffmanTreeDcY = table;
-        System.out.print("DC ");
-      }
-      else
-      {
+      case LUMENANCE_AC:
+        System.out.print("Luminance ");
+        System.out.print("AC ");
         huffmanTreeAcY = table;
-        System.out.print("AC ");
-      }
-    }
-    else
-    {
-      System.out.print("Chrominance ");
-      if(isDCValues)
-      {
-        huffmanTreeDcCx = table;
+        break;
+      case LUMENANCE_DC:
+        System.out.print("Luminance ");
         System.out.print("DC ");
-      }
-      else
-      {
-        huffmanTreeAcCx = table;
+        huffmanTreeDcY = table;
+        break;
+      case CHROMINACE_AC:
+        System.out.print("Chrominance ");
         System.out.print("AC ");
-      }
+        huffmanTreeAcCx = table;
+        break;
+      case CHROMINACE_DC:
+        System.out.print("Chrominance ");
+        System.out.print("DC ");
+        huffmanTreeDcCx = table;
+        break;
     }
+
     System.out.println("to the given value");
     return this;
   }
 
   public JPEG setDefaultHuffmanTables() {
     System.out.println("Setting the default huffman table");
-    setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues(), false, false);
-    setHuffmanTable(JPEGHuffmanTable.StdDCChrominance.getLengths(), JPEGHuffmanTable.StdDCChrominance.getValues(), false, true);
-    setHuffmanTable(JPEGHuffmanTable.StdACLuminance.getLengths(), JPEGHuffmanTable.StdACLuminance.getValues(), true, false);
-    setHuffmanTable(JPEGHuffmanTable.StdDCLuminance.getLengths(), JPEGHuffmanTable.StdDCLuminance.getValues(), true, true);
+    setHuffmanTable(JPEGHuffmanTable.StdACChrominance.getLengths(), JPEGHuffmanTable.StdACChrominance.getValues(), HuffmanTree.HuffmanTreeType.CHROMINACE_AC);
+    setHuffmanTable(JPEGHuffmanTable.StdDCChrominance.getLengths(), JPEGHuffmanTable.StdDCChrominance.getValues(), HuffmanTree.HuffmanTreeType.CHROMINACE_DC);
+    setHuffmanTable(JPEGHuffmanTable.StdACLuminance.getLengths(), JPEGHuffmanTable.StdACLuminance.getValues(), HuffmanTree.HuffmanTreeType.LUMENANCE_AC);
+    setHuffmanTable(JPEGHuffmanTable.StdDCLuminance.getLengths(), JPEGHuffmanTable.StdDCLuminance.getValues(), HuffmanTree.HuffmanTreeType.LUMENANCE_DC);
     return this;
   }
 

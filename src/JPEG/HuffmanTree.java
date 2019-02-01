@@ -5,6 +5,13 @@ import java.util.*;
 
 public class HuffmanTree {
 
+  public enum HuffmanTreeType {
+    LUMENANCE_AC,
+    LUMENANCE_DC,
+    CHROMINACE_AC,
+    CHROMINACE_DC
+  }
+
   ArrayList<Node> leafs;
   int all;
   Node root;
