@@ -67,4 +67,13 @@ public class ZickZack {
     return result;
   }
 
+  public byte[] getByteResult() {
+    byte[] resultArray = new byte[result.length];
+    for ( int i = 0; i < resultArray.length; i++)
+    {
+      resultArray[i] = (byte) result[i];
+    }
+    return resultArray;
+  }
+
 }

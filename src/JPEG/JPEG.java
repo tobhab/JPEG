@@ -5,6 +5,7 @@ import javax.imageio.plugins.jpeg.JPEGHuffmanTable;
 import static JPEG.Constants.*;
 import static JPEG.SubsamplingType.*;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 /**
  * Wrapper class for all steps of the JPEG process.
@@ -540,6 +541,23 @@ public class JPEG {
     }
 
 
+    return this;
+  }
+
+  public JPEG writeOutJpeg(String filename)
+  {
+    System.out.print("Writing out the own generated JPEG-File to " + filename + "...");
+
+    try {
+      JPEGWriter writer = new JPEGWriter(width,height,filename,
+              huffmanTreeAcCx,huffmanTreeDcCx,huffmanTreeAcY,huffmanTreeDcY,
+              quantMatrixLum,quantMatrixChro,
+              subsamplingType,
+              lastResult1b_Cb,lastResult1b_Cr, lastResult1b_Y);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.out.println("Done");
     return this;
   }
 

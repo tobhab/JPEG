@@ -49,6 +49,7 @@ public class Main {
         .setDefaultHuffmanTables()
         .runlengthEncode()
         .huffmanEncode()
+        .writeOutJpeg("myownjpeg.jpg")
         .huffmanDecode()
         .runlengthDecode()
         .inverseZickZack()
