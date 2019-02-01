@@ -12,7 +12,7 @@ public class HuffmanDecoding {
   /**
    * Decodes the huffman encoded codes with the given trees
    */
-  public HuffmanDecoding(byte[] arr, int blockCount, int blockWidth, HuffmanTree decodingTreeAC, HuffmanTree decodingTreeDC) throws IOException {
+  public HuffmanDecoding(byte[] arr, int blockCount, int blockWidth, HuffmanTree decodingTreeAC, HuffmanTree decodingTreeDC, int[] orig) throws IOException {
 
     ByteArrayInputStream in = new ByteArrayInputStream(arr);
     BitStreamReader reader = new BitStreamReader(in);
@@ -23,38 +23,42 @@ public class HuffmanDecoding {
 
     while (blockCount-- > 0) {
       //read dc value code
-      int dcValueCode = decodingTreeDC.lookUpCodeNumber(reader);
+      int dcValueBitCount = decodingTreeDC.lookUpCodeNumber(reader);
 
-      //skip to next block if it's a EOB marker
-      if (dcValueCode == 0) {
+      if (dcValueBitCount == 0) {
         result[indexInResult++] = 0;
-        continue;
+        check(orig, result, indexInResult);
       }
-      //read dc value
-      int dcValue = reader.readBits(dcValueCode);
-	  //Reverse the special encoding for negative DC values, see the encoding phase.
-      if (dcValue < Math.pow(2, dcValueCode - 1)) {
-        int twoPowN = (int) Math.pow(2, dcValueCode);
-        dcValue = dcValue - twoPowN + 1;
+      else {
+        //read dc value
+        int dcValue = reader.readBits(dcValueBitCount);
+        //Reverse the special encoding for negative DC values, see the encoding phase.
+        if (dcValue < Math.pow(2, dcValueBitCount - 1)) {
+          int twoPowN = (int) Math.pow(2, dcValueBitCount);
+          dcValue = dcValue - twoPowN + 1;
+        }
+        result[indexInResult++] = dcValue;
+        check(orig, result, indexInResult);
       }
-      result[indexInResult++] = dcValue;
-
       //read ac values till a EOB is reached
       do {
-        int acValueCode = decodingTreeAC.lookUpCodeNumber(reader);
-        if (acValueCode == 0x00) //EOB
+        int acValueBitCountRunlengthPair = decodingTreeAC.lookUpCodeNumber(reader);
+        if (acValueBitCountRunlengthPair == 0x00) //EOB
         {
           result[indexInResult++] = RunlengthEncode.endOfBlockMarker;
+          check(orig, result, indexInResult);
           break;
-        } else if (acValueCode == 0xF0) //LZR
+        } else if (acValueBitCountRunlengthPair == 0xF0) //LZR
         {
           result[indexInResult++] = RunlengthEncode.longZeroRunMarker;
+          check(orig, result, indexInResult);
           continue;
         } else {
-          int acRunLength = acValueCode >> 4;
+          int acRunLength = acValueBitCountRunlengthPair >> 4;
           result[indexInResult++] = acRunLength;
+          check(orig, result, indexInResult);
 
-          int acBitLength = acValueCode & 0xF;
+          int acBitLength = acValueBitCountRunlengthPair & 0xF;
           int acValue = reader.readBits(acBitLength);
 
 		  //Reverse the special encoding for negative AC values, see the encoding phase.
@@ -64,12 +68,30 @@ public class HuffmanDecoding {
           }
 
           result[indexInResult++] = acValue;
+          check(orig, result, indexInResult);
         }
       }
       while (true);
     }
 
     result = Arrays.copyOfRange(result, 0, indexInResult);
+    for(int i = 0; i < indexInResult; i++)
+    {
+     // check(orig,result,i+1);
+    }
+  }
+
+  private void check(int[] origArray, int[] result, int index)
+  {
+    index-=1;
+    if(index>= origArray.length)
+    {
+      System.out.println("ERROR: index " + index + " is outside the range for the original array!" );
+    }
+    else if (origArray[index] != result[index])
+    {
+      System.out.println("ERROR: index " + index + " should be " + origArray[index] + " but is " + result[index] );
+    }
   }
 
   public int[] getResult() {

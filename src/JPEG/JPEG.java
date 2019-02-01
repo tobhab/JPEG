@@ -547,9 +547,9 @@ public class JPEG {
     try {
       System.out.print("Performing Huffman-Decoding...");
 
-      huffmanDecoding_Y = new HuffmanDecoding(lastResult1b_Y, blockCount, blockSize, huffmanTreeAcY, huffmanTreeDcY);
-      huffmanDecoding_Cb = new HuffmanDecoding(lastResult1b_Cb, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx);
-      huffmanDecoding_Cr = new HuffmanDecoding(lastResult1b_Cr, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx);
+      huffmanDecoding_Y = new HuffmanDecoding(lastResult1b_Y, blockCount, blockSize, huffmanTreeAcY, huffmanTreeDcY, runlengthEncode_Y.getResult());
+      huffmanDecoding_Cb = new HuffmanDecoding(lastResult1b_Cb, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, runlengthEncode_Cb.getResult());
+      huffmanDecoding_Cr = new HuffmanDecoding(lastResult1b_Cr, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, runlengthEncode_Cr.getResult());
       lastResult1i_Y = huffmanDecoding_Y.getResult();
       lastResult1i_Cb = huffmanDecoding_Cb.getResult();
       lastResult1i_Cr = huffmanDecoding_Cr.getResult();

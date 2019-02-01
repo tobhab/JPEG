@@ -23,22 +23,21 @@ public class HuffmanEncoding {
       int dcValueBitWidth = getBitWidth(dcValue);
 
       encodingTreeDC.writeCodeToWriter(writer, dcValueBitWidth);
-      if (dcValueBitWidth == 0) //special case of a DC block being a EOB marker, keep going with the next block
+      if (dcValueBitWidth != 0) //special case of a DC requiring no bits to save the value skips this block of code
       {
-        continue;
+        /*
+         * Negative dc values are encoded in a special way which is explained in F1.2.1.1 in ITU-T81
+         */
+        if (dcValue <= 0) {
+          dcValue = (int) Math.pow(2, dcValueBitWidth) - 1 + dcValue;
+        }
+
+        writer.write(dcValue, dcValueBitWidth);
       }
 
-      /*
-      * Negative dc values are encoded in a special way which is explained in F1.2.1.1 in ITU-T81
-       */
-      if (dcValue <= 0) {
-        dcValue = (int) Math.pow(2, dcValueBitWidth) - 1 + dcValue;
-      }
-
-      writer.write(dcValue, dcValueBitWidth);
 
       //Encode ACs till an EOB is reached
-      while (nextIndex < arr.length && arr[nextIndex] != RunlengthEncode.endOfBlockMarker) {
+      while (nextIndex < (arr.length -1 ) && arr[nextIndex] != RunlengthEncode.endOfBlockMarker) {
 
         int runlength = arr[nextIndex++];
         if (runlength == RunlengthEncode.longZeroRunMarker) {
@@ -67,6 +66,7 @@ public class HuffmanEncoding {
       encodingTreeAC.writeCodeToWriter(writer, 0x00);
     }
     writer.close();
+    out.close();
     result = out.toByteArray();
   }
 
