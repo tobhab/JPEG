@@ -7,21 +7,33 @@ import JPEG.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Random;
 
 import static JPEG.Constants.*;
 import static JPEG.SubsamplingType.*;
+import javax.imageio.plugins.jpeg.JPEGHuffmanTable;
 
 public class Main {
 
   final static int BLOCK_SIZE = 8;
 
   public static void main(String[] args) throws Exception {
+
+    boolean isTestingComponents = false;
+    if(isTestingComponents) {
+      java.util.Random random = new Random(); //Bad initialisation, but good enough
+      int loopCounts = 10000;
+
+      //testBitStreamClasses();
+
+      while (loopCounts-- > 0) {
+        testHuffman(random);
+      }
+    }
+
     System.out.println("Starting compression algorithm:");
-
-    //testBitStreamClasses();
-
     new JPEG()
-        .readImage("Lenna.png")
+        .readImage("Lenna016x016.png")
         .setMultiplicationMatrixYCbCr(YPbPrMatrix)
         .setAdditionMatrixYCbCr(YCbCrMatrix)
         .convertRGBToYCbCr()
@@ -49,6 +61,60 @@ public class Main {
         .convertYCbCrToRGB()
         .writeImage("myLenna.bmp");
     System.out.println("Exiting execution.");
+  }
+
+  /**
+   * Does a simple test to verify that the data that is written can also be read again correctly
+   */
+  private static void testHuffman(java.util.Random random) throws IOException {
+
+    short[] acValues = JPEGHuffmanTable.StdDCChrominance.getValues();
+
+    HuffmanTree treeAC = new HuffmanTree(
+            JPEGHuffmanTable.StdDCChrominance.getLengths(),
+            acValues);
+
+    int numberOfBytesToTest = 1000000;
+
+
+    int[] dataToTest = new int[numberOfBytesToTest];
+    for (int i = 0; i < dataToTest.length; i++) {
+
+      dataToTest[i] = acValues[random.nextInt(acValues.length)];
+    }
+
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    BitStreamWriter writer = new BitStreamWriter(out);
+
+
+    for (int i = 0; i < dataToTest.length; i++) {
+      treeAC.writeCodeToWriter(writer, dataToTest[i]);
+    }
+
+    writer.close();
+    byte[] array = out.toByteArray();
+
+    ByteArrayInputStream in = new ByteArrayInputStream(array);
+    BitStreamReader reader = new BitStreamReader(in);
+
+    int[] testResults = new int[numberOfBytesToTest];
+
+    for (int i = 0; i < dataToTest.length; i++) {
+      testResults[i] = treeAC.lookUpCodeNumber(reader);
+    }
+
+    boolean gotAnError = false;
+    for (int i = 0; i < testResults.length; i++) {
+      if (dataToTest[i] != testResults[i]) {
+        System.out.println("Got different results after huffman at index " + i);
+        gotAnError = true;
+      }
+    }
+    if(!gotAnError)
+    {
+      System.out.println("Passed the test.");
+    }
   }
 
   /**
