@@ -16,7 +16,7 @@ public class Subsampling {
   double[][] layerY, layerCb, layerCr;
 
   /**
-   * Split the YCbCr array to differen layer (Y, Cb, Cr) and subsample the chromatic layers by the subsampling type.
+   * Split the YCbCr array to different layers (Y, Cb, Cr) and subsample the chromatic layers by the subsampling type.
    * Write output images to the file system (local project directory).
    * 
    * @param yCbCrPicture

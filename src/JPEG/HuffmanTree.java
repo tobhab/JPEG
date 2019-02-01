@@ -114,6 +114,7 @@ public class HuffmanTree {
    * The arrays are of the same format which is saved in the jpeg file.
    * First array at index 0 holds the number of nodes per level
    * Second array at index 1 holds the actual values
+   *
    * @return
    */
   public byte[][] getArrays() {
@@ -135,10 +136,10 @@ public class HuffmanTree {
 
       lengthPerLevel[leafDepth]++;
       int valueOfLeaf = leafsInORder.get(i).value;
-      nodeValues[i] = (byte)valueOfLeaf;
+      nodeValues[i] = (byte) valueOfLeaf;
     }
 
-    return new byte[][]{lengthPerLevel,nodeValues};
+    return new byte[][]{lengthPerLevel, nodeValues};
   }
 
   public void printTree(Node n, String code) {
@@ -173,17 +174,13 @@ public class HuffmanTree {
     return returnList;
   }
 
-  public void printInOrder(Node n)
-  {
+  public void printInOrder(Node n) {
     List<Node> returnList = getInOrder(n);
     for (Node node :
             returnList) {
-      if (node.isNode)
-      {
+      if (node.isNode) {
         System.out.println("Node: " + node);
-      }
-      else
-      {
+      } else {
         System.out.println("Leaf: " + node);
       }
     }
