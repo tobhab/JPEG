@@ -45,13 +45,10 @@ public class ZickZackInverse {
   }
 
   private void zickzackInverseBlock(int[] arr, int offsetInArr, int y_block, int x_block) throws Error {
-    int rows = y_block;
-    int columns = x_block;
-
     for (int i = 0; i < (N * N); i++) {
-      int x_offset = ReverseZickZackMapping8[i][0];
-      int y_offset = ReverseZickZackMapping8[i][1];
-      result[x_block + x_offset][y_block + y_offset] = arr[offsetInArr + i];
+      int y_offset = ReverseZickZackMapping8[i][0];
+      int x_offset = ReverseZickZackMapping8[i][1];
+      result[y_block + y_offset][x_block + x_offset] = arr[offsetInArr + i];
     }
   }
 

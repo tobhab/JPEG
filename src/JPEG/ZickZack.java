@@ -57,8 +57,8 @@ public class ZickZack {
          * The encoding of each cell in the block is done with a index lookup.
          * This could have been done with traversing the block each time, but that would be much less understandable.
          */
-        int indexInBlock = zickZackMapping8[x][y] - 1;
-        result[offsetForBlock + indexInBlock] = arr[x_block + x][y_block + y];
+        int indexInBlock = zickZackMapping8[y][x] - 1;
+        result[offsetForBlock + indexInBlock] = arr[y_block + y][x_block + x];
       }
     }
   }
