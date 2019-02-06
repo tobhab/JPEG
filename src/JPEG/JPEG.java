@@ -67,13 +67,9 @@ public class JPEG {
   HuffmanTree huffmanTreeAcCx;
   HuffmanTree huffmanTreeDcCx;
 
-  HuffmanEncoding huffmanEncoding_Y;
-  HuffmanEncoding huffmanEncoding_Cb;
-  HuffmanEncoding huffmanEncoding_Cr;
+  HuffmanEncoding huffmanEncoding_YCbCr;
 
-  HuffmanDecoding huffmanDecoding_Y;
-  HuffmanDecoding huffmanDecoding_Cb;
-  HuffmanDecoding huffmanDecoding_Cr;
+  HuffmanDecoding huffmanDecoding_YCbCr;
 
   Dequantization dequantY;
   Dequantization dequantCb;
@@ -104,9 +100,7 @@ public class JPEG {
 
   double[][][] lastResult3d;
 
-  byte[] lastResult1b_Y;
-  byte[] lastResult1b_Cb;
-  byte[] lastResult1b_Cr;
+  byte[] lastResult1b_YCbCr;
 
   int[] lastResult1i_Y;
   int[] lastResult1i_Cb;
@@ -525,12 +519,8 @@ public class JPEG {
   public JPEG huffmanEncode() {
     try {
       System.out.print("Performing Huffman-Encoding...");
-      huffmanEncoding_Y = new HuffmanEncoding(lastResult1i_Y, huffmanTreeAcY, huffmanTreeDcY);
-      huffmanEncoding_Cb = new HuffmanEncoding(lastResult1i_Cb, huffmanTreeAcCx, huffmanTreeDcCx);
-      huffmanEncoding_Cr = new HuffmanEncoding(lastResult1i_Cr, huffmanTreeAcCx, huffmanTreeDcCx);
-      lastResult1b_Y = huffmanEncoding_Y.getResult();
-      lastResult1b_Cb = huffmanEncoding_Cb.getResult();
-      lastResult1b_Cr = huffmanEncoding_Cr.getResult();
+      huffmanEncoding_YCbCr = new HuffmanEncoding(lastResult1i_Y, lastResult1i_Cb,lastResult1i_Cr, blockCount, huffmanTreeAcY, huffmanTreeDcY, huffmanTreeAcCx, huffmanTreeDcCx);
+      lastResult1b_YCbCr = huffmanEncoding_YCbCr.getResult();
 
       System.out.println(" done");
     } catch (IOException e) {
@@ -549,8 +539,8 @@ public class JPEG {
       JPEGWriter writer = new JPEGWriter(width,height,filename,
               huffmanTreeAcCx,huffmanTreeDcCx,huffmanTreeAcY,huffmanTreeDcY,
               quantMatrixLum,quantMatrixChro,
-              subsamplingType,
-              lastResult1b_Cb,lastResult1b_Cr, lastResult1b_Y);
+              subsamplingType, differental_Y != null,
+              lastResult1b_YCbCr);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -562,12 +552,10 @@ public class JPEG {
     try {
       System.out.print("Performing Huffman-Decoding...");
 
-      huffmanDecoding_Y = new HuffmanDecoding(lastResult1b_Y, blockCount, blockSize, huffmanTreeAcY, huffmanTreeDcY, runlengthEncode_Y.getResult());
-      huffmanDecoding_Cb = new HuffmanDecoding(lastResult1b_Cb, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, runlengthEncode_Cb.getResult());
-      huffmanDecoding_Cr = new HuffmanDecoding(lastResult1b_Cr, blockCount, blockSize, huffmanTreeAcCx, huffmanTreeDcCx, runlengthEncode_Cr.getResult());
-      lastResult1i_Y = huffmanDecoding_Y.getResult();
-      lastResult1i_Cb = huffmanDecoding_Cb.getResult();
-      lastResult1i_Cr = huffmanDecoding_Cr.getResult();
+      huffmanDecoding_YCbCr = new HuffmanDecoding(lastResult1b_YCbCr, blockCount, blockSize, huffmanTreeAcY, huffmanTreeDcY, huffmanTreeAcCx, huffmanTreeDcCx);
+      lastResult1i_Y = huffmanDecoding_YCbCr.getResultY();
+      lastResult1i_Cb = huffmanDecoding_YCbCr.getResultCb();
+      lastResult1i_Cr = huffmanDecoding_YCbCr.getResultCr();
       System.out.println(" done");
     } catch (IOException e) {
       e.printStackTrace();

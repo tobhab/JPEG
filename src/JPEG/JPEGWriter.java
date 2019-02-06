@@ -9,21 +9,21 @@ public class JPEGWriter {
   public JPEGWriter(int width, int height, String fileName,
                     HuffmanTree huffmanChromAC, HuffmanTree huffmanChromDC, HuffmanTree huffmanLumAC, HuffmanTree huffmanLumDC,
                     int[][] quantLum, int[][] quantChrom,
-                    SubsamplingType subsamplingType,
-                    byte[] scanData_Cb, byte[] scanData_Cr, byte[] scanData_Y) throws Exception {
+                    SubsamplingType subsamplingType, boolean isDifferential,
+                    byte[] scanData_YCbCr) throws Exception {
     try {
       FileOutputStream stream = new FileOutputStream(fileName);
       stream.write(getSOI());
       stream.write(getAPP0());
       stream.write(getQuantizationMatrixHeader( quantLum, true));
       stream.write(getQuantizationMatrixHeader(quantChrom, false));
-      stream.write(getSOF(width, height, subsamplingType));
+      stream.write(getSOF(width, height, subsamplingType, isDifferential));
       stream.write(getHuffmanTableHeader(huffmanChromAC, false, false));
       stream.write(getHuffmanTableHeader(huffmanChromDC, false, true));
       stream.write(getHuffmanTableHeader(huffmanLumAC, true, false));
       stream.write(getHuffmanTableHeader(huffmanLumDC, true, true));
       stream.write(getSOS());
-      stream.write(getScanData(scanData_Cb,scanData_Cr,scanData_Y));
+      stream.write(getScanData(scanData_YCbCr));
       stream.write(getEOI());
       stream.close();
 
@@ -74,9 +74,9 @@ public class JPEGWriter {
 
     //First get the information which is the same for each huffman tree
     byte[] baseInformation = new byte[]{(byte) 0xFF, (byte) 0xC4,  //Header id
-            (byte) (headerlength>>8), (byte) headerlength,                               //length of the DHT Header
+            (byte) (headerlength>>8), (byte) headerlength,         //length of the DHT Header
             (byte) ((isDC ? 0x0 : 0x1) << 4 |                      //class
-                    (isLuminance ? 0x0 : 0x1))                        //number
+                    (isLuminance ? 0x0 : 0x1))                     //number
     };
 
     byte[] returnArray = new byte[baseInformation.length + treeArrays[0].length + treeArrays[1].length];
@@ -103,7 +103,7 @@ public class JPEGWriter {
     };
   }
 
-  private byte[] getSOF(int imageWidth, int imageHeight, SubsamplingType subsamplingType)
+  private byte[] getSOF(int imageWidth, int imageHeight, SubsamplingType subsamplingType, boolean isDifferential)
   {
     byte subsamplingHeight = 0;
     byte subsamplingWidtht = 0;
@@ -127,8 +127,17 @@ public class JPEGWriter {
     }
     subsamplingHeight = 1;
     subsamplingWidtht = 1;
+    byte headerID = 0x00;
+    if(!isDifferential)
+    {
+      headerID=(byte)0xc6;
+    }
+    else
+    {
+      headerID=(byte)0xc1;
+    }
 
-    return new byte[]{(byte)0xFF, (byte)0xC1,//Header id
+    return new byte[]{(byte)0xFF, headerID,//Header id
             (byte)0x00,(byte)0x11,  //length of block
             (byte)0x08, //bits pro pixel pro component
             (byte)(imageHeight >> 8), (byte)(imageHeight),
@@ -146,34 +155,21 @@ public class JPEGWriter {
     };
   }
 
-  private byte[] getScanData(byte[] scanCb,byte[] scanCr,byte[] scanY) {
+  private byte[] getScanData(byte[] scanData_YCbCr) {
     //When creating this block of bytes we need to make sure that no 0xFF value shows up which would otherwise signal a frame
-    byte[] returnArray = new byte[(scanCb.length + scanCr.length + scanY.length) * 2]; //We need extra space for replacing the 0xFF in the output
+    byte[] returnArray = new byte[scanData_YCbCr.length * 2]; //We need extra space for replacing the 0xFF in the output
     int indexInReturnArray = 0;
-    //Appens a 0x00 after a 0xFF for the scanCb
-    for (int i = 0; i < scanCb.length; i++) {
-      returnArray[indexInReturnArray++] = scanCb[i];
-      if (scanCb[i] == -1) {
-        returnArray[indexInReturnArray++] = 0x00;
-      }
-    }
-    //Appens a 0x00 after a 0xFF for the scanCr
-    for (int i = 0; i < scanCr.length; i++) {
-      returnArray[indexInReturnArray++] = scanCr[i];
-      if (scanCr[i] == -1) {
-        returnArray[indexInReturnArray++] = 0x00;
-      }
-    }
-    //Appens a 0x00 after a 0xFF for the scanY
-    for (int i = 0; i < scanY.length; i++) {
-      returnArray[indexInReturnArray++] = scanY[i];
-      if (scanY[i] == -1) {
+
+    //Appends a 0x00 after a 0xFF for the scanData_YCbCr
+    for (int i = 0; i < scanData_YCbCr.length; i++) {
+      returnArray[indexInReturnArray++] = scanData_YCbCr[i];
+      if (scanData_YCbCr[i] == -1) {
         returnArray[indexInReturnArray++] = 0x00;
       }
     }
 
     //Return only what has actually being used.
-    return Arrays.copyOfRange(returnArray, 0, indexInReturnArray - 1);
+    return Arrays.copyOfRange(returnArray, 0, indexInReturnArray);
   }
 
   private byte[] getEOI()
