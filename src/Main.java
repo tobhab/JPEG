@@ -7,6 +7,8 @@ import JPEG.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Random;
 
 import static JPEG.Constants.*;
@@ -20,11 +22,12 @@ public class Main {
   public static void main(String[] args) throws Exception {
 
     boolean isTestingComponents = false;
-    if(isTestingComponents) {
+    if (isTestingComponents) {
       java.util.Random random = new Random(); //Bad initialisation, but good enough
-      int loopCounts = 10000;
+      int loopCounts = 1;
 
       //testBitStreamClasses();
+     // testRunlength();
 
       while (loopCounts-- > 0) {
         testHuffman(random);
@@ -62,6 +65,30 @@ public class Main {
         .convertYCbCrToRGB()
         .writeImage("myLenna.bmp");
     System.out.println("Exiting execution.");
+  }
+
+  /**
+   * Does a simple test to manually verify that the data is encoded correctly
+   */
+  private static void testRunlength() throws IOException {
+    int[] allEmpty = new int[64];
+    RunlengthEncode allEmptyTest = new RunlengthEncode(allEmpty, 8, 1);
+    int[] allEmpty2Blocks = new int[64 * 2];
+    RunlengthEncode allEmptyTest2 = new RunlengthEncode( allEmpty2Blocks, 8, 2);
+
+    int[] allOne = new int[64];
+    Arrays.fill(allOne, 1);
+    RunlengthEncode allOneTest = new RunlengthEncode(allOne, 8, 1);
+
+    int[][] differentOnePositions = new int[64][];
+    RunlengthEncode singleOne[] = new RunlengthEncode[64];
+    for (int i = 0; i < 64; i++) {
+      differentOnePositions[i] = new int[64];
+      differentOnePositions[i][i] = 1;
+      singleOne[i] = new RunlengthEncode(differentOnePositions[i], 8, 1);
+    }
+
+    System.out.println("Please manualy check that it always ends with a single -1 and counts the zeros correctly and adds the zero runs (represented by a 17 in the runlength) if needed");
   }
 
   /**
