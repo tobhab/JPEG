@@ -469,9 +469,9 @@ public class JPEG {
 
   public JPEG runlengthEncode() {
     System.out.print("Performing Runlength-Encoding...");
-    runlengthEncode_Y = new RunlengthEncode(lastResult1i_Y, blockSize);
-    runlengthEncode_Cb = new RunlengthEncode(lastResult1i_Cb, blockSize);
-    runlengthEncode_Cr = new RunlengthEncode(lastResult1i_Cr, blockSize);
+    runlengthEncode_Y = new RunlengthEncode(lastResult1i_Y, blockSize, blockCount);
+    runlengthEncode_Cb = new RunlengthEncode(lastResult1i_Cb, blockSize, blockCount);
+    runlengthEncode_Cr = new RunlengthEncode(lastResult1i_Cr, blockSize, blockCount);
     System.out.println(" done");
     lastResult1i_Y = runlengthEncode_Y.getResult();
     lastResult1i_Cb = runlengthEncode_Cb.getResult();

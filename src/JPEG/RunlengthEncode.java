@@ -7,6 +7,7 @@ public class RunlengthEncode {
   private int[] result;
 
   public final static int endOfBlockMarker = -1;
+  public final static int skippingEndOfBlockMarker = -2;
   public final static int longZeroRunMarker = 17;
 
   /**
@@ -18,7 +19,7 @@ public class RunlengthEncode {
    * @param arr
    * @param block_size
    */
-  public RunlengthEncode(int[] arr, int block_size)
+  public RunlengthEncode(int[] arr, int block_size, int blockCount)
   {
     //blockLength is the length of an 2d square with the side length of block_size
     int blockLength = block_size * block_size;
@@ -31,13 +32,12 @@ public class RunlengthEncode {
      * We only return a part of that array after we are done here.
      */
     result = new int[arr.length * 2];
-
-    do
+    int currentBlock = 0;
+    while (currentBlock++ < blockCount)
     {
       currentResultIndex = encodeBlock(arr, blockLength, currentBlockOffset, currentResultIndex);
       currentBlockOffset += blockLength;
     }
-    while(currentBlockOffset < arr.length);
 
     result = Arrays.copyOfRange(result,0,currentResultIndex);
   }
@@ -85,6 +85,7 @@ public class RunlengthEncode {
 		 * ...and insert an end of block marker here.
 		 */
         result[currentResultIndex++] = endOfBlockMarker;
+        return currentResultIndex;
       }
       else
       {
@@ -97,6 +98,11 @@ public class RunlengthEncode {
     }
 	
     //According to ITU-t81 F.1.2.3 the last EOB marker is bypassed if the very last coefficient is already set
+    //For easier control flow we still add a special marker here which will not be output to the file
+    if(result[currentResultIndex - 1] != endOfBlockMarker)
+    {
+      result[currentResultIndex++] = skippingEndOfBlockMarker;
+    }
 
     return currentResultIndex;
   }

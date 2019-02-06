@@ -28,7 +28,7 @@ public class RunlengthDecode {
       result[currentWriteIndex++] = arr[currentDecodeIndex++];
       while (true) {
         //Check if we reach an end of block
-        if (arr[currentDecodeIndex] == RunlengthEncode.endOfBlockMarker) {
+        if (arr[currentDecodeIndex] == RunlengthEncode.endOfBlockMarker || arr[currentDecodeIndex] == RunlengthEncode.skippingEndOfBlockMarker ) {
           currentDecodeIndex++;
           //skip to the next block boundary
           currentWriteIndex = ((currentWriteIndex + blockLength - 1) / blockLength) * blockLength;
