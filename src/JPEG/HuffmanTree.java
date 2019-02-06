@@ -208,7 +208,7 @@ public class HuffmanTree {
       if (leaf.value == valueToWrite) {
         CodeWord codeWordToWrite = leaf.getCode();
         writer.write(codeWordToWrite.code, codeWordToWrite.bitCount);
-        break;
+        return;
       }
     }
   }
