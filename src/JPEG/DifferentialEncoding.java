@@ -21,7 +21,6 @@ public class DifferentialEncoding {
 
     for (int y_block = 0; y_block < height; y_block += block_size)
     {
-      D = 0;
       for (int x_block = 0; x_block < width; x_block += block_size)
       {
         int D_temp = result[y_block][x_block];

@@ -21,7 +21,6 @@ public class InverseDifferentialEncoding {
 
     for (int y_block = 0; y_block < height; y_block += block_size)
     {
-      PrevioudD = 0;
       for (int x_block = 0; x_block < width; x_block += block_size)
       {
         result[y_block][x_block] += PrevioudD;
