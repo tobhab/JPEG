@@ -75,8 +75,8 @@ public class JPEGWriter {
     //First get the information which is the same for each huffman tree
     byte[] baseInformation = new byte[]{(byte) 0xFF, (byte) 0xC4,  //Header id
             (byte) (headerlength>>8), (byte) headerlength,         //length of the DHT Header
-            (byte) ((isDC ? 0x0 : 0x1) << 4 |                      //class
-                    (isLuminance ? 0x0 : 0x1))                     //number
+            (byte) ((isDC ? 0x0 : 0x1) << 4 |                      //class(AC/DC)
+                    (isLuminance ? 0x0 : 0x1))                     //number(Luminance/Chrominace)
     };
 
     byte[] returnArray = new byte[baseInformation.length + treeArrays[0].length + treeArrays[1].length];
@@ -107,34 +107,38 @@ public class JPEGWriter {
   {
     byte subsamplingHeight = 0;
     byte subsamplingWidtht = 0;
+    //TODO subsampling is currently only really supported for the full resolution subsampling
     switch (  subsamplingType   ){
       case TYPE_4_2_2: //full height and half width, according to given subsampling in class Subsampling
-        subsamplingHeight = 4;
-        subsamplingWidtht = 2;
+        subsamplingHeight = 4;//Value not tested!
+        subsamplingWidtht = 2;//Value not tested!
+          System.err.println("\nPlease only use the TYPE_4_4_4 subsampling type whenwriting to a jpeg file!");
         break;
       case TYPE_4_1_1://full height and quater width, according to given subsampling in class Subsampling
-        subsamplingHeight = 4;
-        subsamplingWidtht = 1;
+        subsamplingHeight = 4;//Value not tested!
+        subsamplingWidtht = 1;//Value not tested!
+          System.err.println("\nPlease only use the TYPE_4_4_4 subsampling type whenwriting to a jpeg file!");
         break;
       case TYPE_4_2_0://half height and half width, according to given subsampling in class Subsampling
-        subsamplingHeight = 2;
-        subsamplingWidtht = 2;
+        subsamplingHeight = 2;//Value not tested!
+        subsamplingWidtht = 2;//Value not tested!
+          System.err.println("\nPlease only use the TYPE_4_4_4 subsampling type whenwriting to a jpeg file!");
         break;
       case TYPE_4_4_4://full resolution, according to given subsampling in class Subsampling
-        subsamplingHeight = 4;
-        subsamplingWidtht = 4;
+        subsamplingHeight = 1;
+        subsamplingWidtht = 1;
         break;
     }
-    subsamplingHeight = 1;
-    subsamplingWidtht = 1;
     byte headerID = 0x00;
-    if(!isDifferential)
+    if(isDifferential)
     {
-      headerID=(byte)0xc6;
+      headerID=(byte)0xc1;
     }
     else
     {
+      //Here we should use a non-differential header ID, but i can't seem to get this working without differential :\
       headerID=(byte)0xc1;
+      System.err.println("\nPlease only use the differential when writing to a jpeg file!");
     }
 
     return new byte[]{(byte)0xFF, headerID,//Header id
