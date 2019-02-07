@@ -27,7 +27,7 @@ public class Main {
       int loopCounts = 1;
 
       //testBitStreamClasses();
-     // testRunlength();
+      testRunlength();
 
       while (loopCounts-- > 0) {
         testHuffman(random);
@@ -86,6 +86,15 @@ public class Main {
       differentOnePositions[i] = new int[64];
       differentOnePositions[i][i] = 1;
       singleOne[i] = new RunlengthEncode(differentOnePositions[i], 8, 1);
+    }
+
+    int[][] differentOnePositionsFixedAt12 = new int[64][];
+    RunlengthEncode differentOnePositionsFixedAt12RLE[] = new RunlengthEncode[64];
+    for (int i = 0; i < 64; i++) {
+      differentOnePositionsFixedAt12[i] = new int[64];
+      differentOnePositionsFixedAt12[i][12] = 1;
+      differentOnePositionsFixedAt12[i][i] = 1;
+      differentOnePositionsFixedAt12RLE[i] = new RunlengthEncode(differentOnePositionsFixedAt12[i], 8, 1);
     }
 
     System.out.println("Please manualy check that it always ends with a single -1 and counts the zeros correctly and adds the zero runs (represented by a 17 in the runlength) if needed");
