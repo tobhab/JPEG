@@ -55,7 +55,7 @@ public class HuffmanEncoding {
 
     if(showDebugOutput) System.out.println("\tWriting the AC components");
     int runlength = 0; //Just need to skip the inital EOB marker
-    while(runlength != RunlengthEncode.endOfBlockMarker || runlength != RunlengthEncode.skippingEndOfBlockMarker ) {
+    while(runlength != RunlengthEncode.endOfBlockMarker && runlength != RunlengthEncode.skippingEndOfBlockMarker ) {
       runlength = arr[nextIndex++];
       if (runlength == RunlengthEncode.longZeroRunMarker) {
         //Encode LZR
