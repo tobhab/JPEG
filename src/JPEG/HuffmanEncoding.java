@@ -23,9 +23,9 @@ public class HuffmanEncoding {
     //Encode all blocks for the entire array
     while (currentBlock++ < blockCount) {
       if (showDebugOutput) System.out.println("Encoding block " + currentBlock);
-      nextIndexY = encodeBlock(arrY, encodingTreeYAC, encodingTreeYDC, writer, nextIndexY);
-      nextIndexCb = encodeBlock(arrCb, encodingTreeCxAC, encodingTreeCxDC, writer, nextIndexCb);
-      nextIndexCr = encodeBlock(arrCr, encodingTreeCxAC, encodingTreeCxDC, writer, nextIndexCr);
+      nextIndexY = encodeBlock(arrY, encodingTreeYAC, encodingTreeYDC, writer, nextIndexY, true);
+      nextIndexCb = encodeBlock(arrCb, encodingTreeCxAC, encodingTreeCxDC, writer, nextIndexCb, true);
+      nextIndexCr = encodeBlock(arrCr, encodingTreeCxAC, encodingTreeCxDC, writer, nextIndexCr, false);
 
     }
     writer.close();
@@ -33,7 +33,15 @@ public class HuffmanEncoding {
     result = out.toByteArray();
   }
 
-  private int encodeBlock(int[] arr, HuffmanTree encodingTreeAC, HuffmanTree encodingTreeDC, BitStreamWriter writer, int nextIndex) throws IOException {
+  private int encodeBlock(int[] arr, HuffmanTree encodingTreeAC, HuffmanTree encodingTreeDC, BitStreamWriter writer, int nextIndex, boolean overrule) throws IOException {
+
+    if(overrule)
+    {
+      encodingTreeDC.writeCodeToWriter(writer, 0);
+
+      encodingTreeAC.writeCodeToWriter(writer, 0x00);
+      return 0;
+    }
 
     if(showDebugOutput) System.out.println("\tWriting the DC component");
     //Encode DC component
