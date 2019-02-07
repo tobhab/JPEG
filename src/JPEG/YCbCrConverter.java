@@ -43,14 +43,17 @@ public class YCbCrConverter {
             { rgbArray[x][y][B] }
         };
 
-        // optimization
-        // int red = rgbImage[x][y][R];
-        // int green = rgbImage[x][y][G];
-        // int blue = rgbImage[x][y][B];
-        // yCbCr[x][y][Y] = (int) (0.299 * red + 0.587 * green + 0.114 * blue);
-        // yCbCr[x][y][Cb] = (int) (-0.1687 * red - 0.3313 * green + 0.5 * blue + 128);
-        // yCbCr[x][y][Cr] = (int) (0.5 * red - 0.4187 * green - 0.0813 * blue + 128);
-
+ /*       // optimization
+        double red = rgbArray[x][y][R] / 255.0;
+        double green = rgbArray[x][y][G] / 255.0;
+        double blue = rgbArray[x][y][B] / 255.0;
+        double EY =  (0.299 * red + 0.587 * green + 0.114 * blue);
+        double ECb = (-0.1687 * red - 0.3313 * green + 0.5 * blue);
+        double ECr = (0.5 * red - 0.4187 * green - 0.0813 * blue);
+        yCbCrPicture[x][y][Y] = 219 * EY + 16;
+        yCbCrPicture[x][y][Cb] = 224 * ECb + 128;
+        yCbCrPicture[x][y][Cr] = 224 * ECr + 128;
+*/
         double[][] YPBPR = Matrix.mult(yPbPrMatrix, RGBVector);
         double[][] YCBCR = Matrix.add(YPBPR, yCbCrMatrix);
 
