@@ -6,9 +6,9 @@ public class RunlengthEncode {
 
   private int[] result;
 
-  public final static int endOfBlockMarker = -1;
-  public final static int skippingEndOfBlockMarker = -2;
-  public final static int longZeroRunMarker = 17;
+  public final static int endOfBlockMarker = -1000000;
+  public final static int skippingEndOfBlockMarker = -2000000;
+  public final static int longZeroRunMarker = 17000000;
 
   /**
    * Generates a simplified RLE encoding so that no bit operations are needed to read the values in the resulting array.
@@ -47,7 +47,8 @@ public class RunlengthEncode {
    */
   private int encodeBlock(int[] arr, int blockLength, int currentBlockOffset, int currentResultIndex) {
     //Just copy the dc component to the result array, will be compressed in the huffman stage
-    result[currentResultIndex++] = arr[currentBlockOffset];
+    int currentDC = arr[currentBlockOffset];
+    result[currentResultIndex++] = currentDC;
     int indexInCurrentBlock = 0;
 	
 	//Do runs for the entire block.
