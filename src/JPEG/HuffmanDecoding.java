@@ -41,6 +41,7 @@ public class HuffmanDecoding {
   private int decodeBlock(HuffmanTree decodingTreeYAC, HuffmanTree decodingTreeYDC, BitStreamReader reader, int indexInResult, int[]outputArray) throws IOException {
     //read dc value code
     int dcValueBitCount = decodingTreeYDC.lookUpCodeNumber(reader);
+    int indexInBlock = 1; //This is needed or we won't notice the end when the very last block is set
 
     if (dcValueBitCount == 0) {
       outputArray[indexInResult++] = 0;
@@ -61,14 +62,16 @@ public class HuffmanDecoding {
       if (acValueBitCountRunlengthPair == 0x00) //EOB
       {
         outputArray[indexInResult++] = RunlengthEncode.endOfBlockMarker;
-        break;
+        return indexInResult;
       } else if (acValueBitCountRunlengthPair == 0xF0) //LZR
       {
         outputArray[indexInResult++] = RunlengthEncode.longZeroRunMarker;
+        indexInBlock += 15;
         continue;
       } else {
         int acRunLength = acValueBitCountRunlengthPair >> 4;
         outputArray[indexInResult++] = acRunLength;
+        indexInBlock += acRunLength;
 
         int acBitLength = acValueBitCountRunlengthPair & 0xF;
         int acValue = reader.readBits(acBitLength);
@@ -80,9 +83,11 @@ public class HuffmanDecoding {
         }
 
         outputArray[indexInResult++] = acValue;
+        indexInBlock++;
       }
     }
-    while (true);
+    while (indexInBlock < 64);
+    outputArray[indexInResult++] = RunlengthEncode.skippingEndOfBlockMarker;
     return indexInResult;
   }
 

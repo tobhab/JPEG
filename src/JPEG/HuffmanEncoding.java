@@ -74,6 +74,10 @@ public class HuffmanEncoding {
       {
         break;
       }
+      else if(runlength == RunlengthEncode.skippingEndOfBlockMarker)
+      {
+        return nextIndex;
+      }
 
       int acValue = arr[nextIndex++];
       int bitsize = getBitWidth(acValue);

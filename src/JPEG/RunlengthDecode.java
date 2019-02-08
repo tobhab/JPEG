@@ -48,7 +48,11 @@ public class RunlengthDecode {
 
           //And now we might be the very last coefficent in the block which is set, then we need to finish this block and go to the next
           if((currentWriteIndex - startOfBlockIndex) == blockLength)
+          {
+            if (arr[currentDecodeIndex] == RunlengthEncode.endOfBlockMarker || arr[currentDecodeIndex] == RunlengthEncode.skippingEndOfBlockMarker )
+              currentDecodeIndex++;
             break;
+          }
         }
       }
     }
