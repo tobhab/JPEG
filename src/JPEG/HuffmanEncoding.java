@@ -23,8 +23,8 @@ public class HuffmanEncoding {
     //Encode all blocks for the entire array
     while (currentBlock++ < blockCount) {
       if (showDebugOutput) System.out.println("Encoding block " + currentBlock);
-      nextIndexY = encodeBlock(arrY, encodingTreeYAC, encodingTreeYDC, writer, nextIndexY, true);
-      nextIndexCb = encodeBlock(arrCb, encodingTreeCxAC, encodingTreeCxDC, writer, nextIndexCb, true);
+      nextIndexY = encodeBlock(arrY, encodingTreeYAC, encodingTreeYDC, writer, nextIndexY, false);
+      nextIndexCb = encodeBlock(arrCb, encodingTreeCxAC, encodingTreeCxDC, writer, nextIndexCb, false);
       nextIndexCr = encodeBlock(arrCr, encodingTreeCxAC, encodingTreeCxDC, writer, nextIndexCr, false);
 
     }

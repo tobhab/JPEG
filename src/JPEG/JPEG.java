@@ -126,6 +126,12 @@ public class JPEG {
     setMultiplicationMatrixRGB(RGBMatrix1);
   }
 
+  public JPEG setWriteDebugOutput(boolean writeDebugOutput)
+  {
+    writeDebugFiles = writeDebugOutput;
+    return this;
+  }
+
   /**
    * Read an image from file system by the given path and start time measurement
    * 
